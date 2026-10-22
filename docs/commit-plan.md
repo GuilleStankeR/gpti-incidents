@@ -39,7 +39,7 @@ verificación manual propia.
 | 22 | Frontend | `feat(web): add report incident form` | [x] |
 | 23 | Frontend | `feat(web): add incident detail and actions` | [x] |
 | 24 | Frontend | `feat(web): add metrics dashboard` | [x] |
-| 25 | Cierre | `docs: add readme and acceptance checklist` | [ ] |
+| 25 | Cierre | `docs: add readme and acceptance checklist` | [x] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
 de datos y la web arrancando, sin funcionalidades de negocio.
@@ -902,11 +902,15 @@ bandeja; capturas a 1440 px y 390 px sin desborde.
 
 **Archivos:**
 - `README.md` en el orden de §10.4 de la especificación: qué es en tres frases, requisitos,
-  los dos comandos (`npm run setup` y `npm run dev`), credenciales demo, mapa de carpetas,
-  decisiones de diseño (justificaciones de §4.1, RN-03, RN-12, RN-13) y tabla de variables de
-  entorno.
-- `docs/acceptance-checklist.md`: CA-01 a CA-23 con el resultado de la verificación manual y
-  los criterios que no aplican por las decisiones de `CLAUDE.md` §2 (CA-22).
+  los comandos (`npm run setup` + `npm run dev`, o `npm start`), credenciales demo, mapa de
+  carpetas, decisiones de diseño (justificaciones de §4.1, RN-03, RN-12, RN-13), desviaciones
+  respecto de la especificación y tabla de variables de entorno.
+- `docs/acceptance-checklist.md`: CA-01 a CA-23 con resultado, forma de verificación y commit;
+  CA-22 no aplica por la decisión de no incluir pruebas; resultado del guion de demostración.
+- Ajustes previos en commits propios: el seed deja un incidente en ejecución sin evidencia para el
+  paso 7 del guion (`fix(db)`), y el selector de responsable muestra un estado de carga
+  (`fix(web)`).
 
-**Verificación:** clon limpio en un directorio temporal → `npm run setup && npm run dev` deja el
-sistema operativo con datos; se ejecuta el guion completo de §12 de la especificación.
+**Verificación:** `npm run build` sin errores ni advertencias (CA-23); clon limpio desde GitHub
+con la base vacía → `npm start` deja el sistema operativo con datos; los diez pasos del guion §12
+se ejecutan en una sola corrida automatizada en Chrome headless, sin errores de página.
