@@ -20,7 +20,7 @@ verificación manual propia.
 | 04 | Base | `feat(shared): add shared domain package` | [x] |
 | 05 | Base | `feat(api): bootstrap nestjs application` | [x] |
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [x] |
-| 07 | Base | `feat(web): bootstrap react application` | [ ] |
+| 07 | Base | `feat(web): bootstrap react application` | [x] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [ ] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [ ] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [ ] |
@@ -303,31 +303,44 @@ fallan con la excepción del trigger (CA-12); la API arranca conectada a la base
 
 **Dependencias:** `react`, `react-dom`, `react-router-dom`, `@tanstack/react-query`,
 `@incidents/shared`. Dev: `vite`, `@vitejs/plugin-react`, `tailwindcss`, `postcss`,
-`autoprefixer`, `@types/react`, `@types/react-dom`.
+`autoprefixer`, `@types/react`, `@types/react-dom`, `@types/node`. Raíz: `concurrently` y
+`prettier-plugin-tailwindcss` (ordena las clases, también dentro de `classNames`).
 
 **Archivos (`apps/web`):**
-- `package.json`: scripts `dev`, `build` (`tsc -b && vite build`), `preview`, `typecheck`.
+- `package.json` (`"type": "module"`): scripts `dev`, `build` (typecheck + `vite build`),
+  `preview`, `typecheck`.
 - `index.html` con `lang="es-CL"`.
-- `vite.config.ts`: alias `@/`, proxy `/api` hacia `http://localhost:${API_PORT}` leyendo el
-  `.env` raíz con `loadEnv`, de modo que el frontend nunca use una URL absoluta de API.
-- `tsconfig.json` (`moduleResolution: bundler`, `jsx: react-jsx`, `types: ["vite/client"]`,
-  alias `@/*`), `tsconfig.node.json` para `vite.config.ts`.
-- `tailwind.config.ts` (colores `accent`, tipografía del sistema), `postcss.config.mjs`,
+- `vite.config.ts`: alias `@/`, `envDir` en la raíz y proxy `/api` hacia
+  `http://localhost:${API_PORT}` leyendo el `.env` raíz con `loadEnv` (falla con un mensaje claro
+  si falta), de modo que el frontend nunca use una URL absoluta de API.
+- `tsconfig.json` (solo referencias), `tsconfig.app.json` (`src`, DOM, `Bundler`,
+  `react-jsx`, `vite/client`, alias `@/*`) y `tsconfig.node.json` (archivos de configuración con
+  tipos de Node).
+- `tailwind.config.ts` (tokens `accent`, `accent-hover`, `accent-ring`, `accent-muted` sobre la
+  escala azul oscura; tipografía del sistema por defecto), `postcss.config.mjs`,
   `src/styles/index.css`.
 - `src/main.tsx`; `src/app/App.tsx`, `AppProviders.tsx` (`QueryClientProvider`,
-  `BrowserRouter`), `AppRouter.tsx`, `routes.ts` (constantes y builders de rutas),
-  `query-client.ts`.
-- `src/shared/api/api-error.ts` (`ApiError` con `code`, `message`, `status`) y
-  `src/shared/api/http-client.ts` (`get`, `post`, `patch`, `postForm`, `getBlob`; inyección de
-  token y manejador de 401 registrables desde la feature de auth).
-- `src/shared/ui/`: `Button.tsx` (variantes `primary`, `secondary`, `danger`, `ghost`; mínimo
-  44 px), `Spinner.tsx`, `Card.tsx`, `PageHeader.tsx`, `LoadingState.tsx`, `ErrorState.tsx`
-  (con reintento), `EmptyState.tsx`.
-- `src/shared/copy/common.copy.ts`.
+  `BrowserRouter`), `AppRouter.tsx`, `query-client.ts` (sin reintentos ante errores 4xx).
 - `src/app/pages/NotFoundPage.tsx`.
+- `src/shared/routing/route-paths.ts`: rutas de la app. Viven en `shared` porque las features no
+  pueden importar de `app/`.
+- `src/shared/api/api-error.ts` (`ApiError` con `code`, `message`, `status`),
+  `http-status.ts` y `http-client.ts` (`get`, `getBlob`, `post`, `patch`, `postForm`; query
+  params; token y manejador de sesión inválida registrables con `configureHttpClient`; errores de
+  red y respuestas no JSON normalizados a `ApiError` con copy en español).
+- `src/shared/lib/class-names.ts`.
+- `src/shared/ui/`: `button-styles.ts`, `Button.tsx` (variantes `primary`, `secondary`,
+  `danger`, `ghost`; mínimo 44 px; estado de carga), `ButtonLink.tsx`, `Spinner.tsx`,
+  `Card.tsx`, `PageHeader.tsx`, `LoadingState.tsx`, `ErrorState.tsx` (con reintento),
+  `EmptyState.tsx`.
+- `src/shared/copy/common.copy.ts`.
+- Script raíz `dev`: compila `shared` y levanta API y web con `concurrently`.
+- Corrección del lint: la zona `components → api` de `web-layers.mjs` necesita `/**` para cubrir
+  archivos y no solo carpetas.
 
-**Verificación:** `npm run dev -w @incidents/web` sirve la app; `npm run build` genera `dist`
-sin advertencias; un literal en JSX hace fallar el lint.
+**Verificación:** `npm run dev` levanta ambas apps y el proxy de Vite llega a la API; Vite resuelve
+el build ESM de `shared`; `npm run build` genera `dist` sin advertencias; un literal en JSX, un
+`fetch` directo, dos componentes en un archivo o un import que cruza capas hacen fallar el lint.
 
 ---
 

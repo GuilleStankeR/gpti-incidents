@@ -30,8 +30,8 @@ export const WEB_LAYER_ZONES = [
   },
   ...featureIsolationZones(['incidents', 'metrics']),
   {
-    target: `${FEATURES}/*/components`,
-    from: `${FEATURES}/*/api`,
+    target: `${FEATURES}/*/components/**`,
+    from: `${FEATURES}/*/api/**`,
     message: 'Components must access remote data through hooks, not API modules.',
   },
 ];

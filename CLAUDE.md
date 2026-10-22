@@ -250,6 +250,7 @@ src/
 │   ├── layout/                  layout autenticado, cabecera, navegación
 │   ├── hooks/                   hooks genéricos
 │   ├── lib/                     utilidades puras
+│   ├── routing/                 rutas de la app (las features no pueden importar de app/)
 │   └── copy/                    copy transversal y etiquetas de dominio
 ├── features/
 │   ├── auth/
