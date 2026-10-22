@@ -7,6 +7,7 @@ import { defineConfig, loadEnv } from 'vite';
 const ROOT_DIRECTORY = fileURLToPath(new URL('../..', import.meta.url));
 const SOURCE_DIRECTORY = fileURLToPath(new URL('src', import.meta.url));
 const API_ROUTE_PREFIX = '/api';
+const CLIENT_ENV_PREFIXES = ['VITE_', 'TIME_ZONE'];
 
 function resolveApiTarget(mode: string): string {
   const { API_PORT: apiPort } = loadEnv(mode, ROOT_DIRECTORY, '');
@@ -21,6 +22,7 @@ function resolveApiTarget(mode: string): string {
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
   envDir: ROOT_DIRECTORY,
+  envPrefix: CLIENT_ENV_PREFIXES,
   resolve: {
     alias: { '@': SOURCE_DIRECTORY },
   },

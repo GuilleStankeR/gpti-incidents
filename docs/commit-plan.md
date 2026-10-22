@@ -34,7 +34,7 @@ verificación manual propia.
 | 17 | Backend | `feat(api): add case file pdf export` | [x] |
 | 18 | Backend | `feat(api): add metrics endpoint` | [x] |
 | 19 | Backend | `feat(db): add historical incidents seed` | [x] |
-| 20 | Frontend | `feat(web): add authentication and app layout` | [ ] |
+| 20 | Frontend | `feat(web): add authentication and app layout` | [x] |
 | 21 | Frontend | `feat(web): add incidents inbox` | [ ] |
 | 22 | Frontend | `feat(web): add report incident form` | [ ] |
 | 23 | Frontend | `feat(web): add incident detail and actions` | [ ] |
@@ -746,25 +746,35 @@ todo operativo.
 **Objetivo:** login, sesión y navegación por perfil (A1, A10).
 
 **Archivos:**
-- `src/features/auth/api/auth.api.ts`.
-- `src/features/auth/session-storage.ts`: token en `localStorage` bajo `incidents.token` y
-  usuario bajo `incidents.user`; lectura tolerante a fallos.
-- `src/features/auth/AuthProvider.tsx` y `auth-context.ts`: sesión, `login`, `logout`; registra
-  el token y el manejador de 401 en el `http-client`.
-- `src/features/auth/hooks/use-auth.ts` y `use-login-form.ts`.
-- `src/features/auth/components/`: `LoginForm.tsx`, `DemoAccountsCard.tsx`,
-  `ProtectedRoute.tsx` (exige sesión; acepta roles permitidos y redirige a la bandeja si no
-  corresponde).
-- `src/features/auth/pages/LoginPage.tsx`, `demo-accounts.data.ts`, `auth.copy.ts`.
-- `src/shared/ui/`: `TextField.tsx`, `InlineAlert.tsx`.
-- `src/shared/layout/`: `AppLayout.tsx`, `AppHeader.tsx`, `MainNavigation.tsx` (enlaces según
-  capacidades de `shared`), `UserMenu.tsx`.
-- `src/shared/copy/domain-labels.copy.ts`: etiquetas de roles, estados, categorías y semáforo.
-- Router: `/login` pública; `/incidents` protegida (página inicial mínima que el commit 21
-  completa).
+- Sistema visual: tokens `accent*` en `@theme`, tipografía del sistema, favicon SVG y
+  `theme-color`; set de íconos SVG propio (`shared/ui/icons/`, trazos de Heroicons, licencia MIT)
+  sin dependencias nuevas.
+- `src/shared/ui/`: `FieldShell.tsx`, `TextField.tsx`, `field-styles.ts` (controles de 44 px,
+  texto de 16 px en móvil para evitar zoom, anillo de foco), `InlineAlert.tsx`, `Avatar.tsx`,
+  `IconButton.tsx`, `Card.tsx` con cabecera opcional.
+- `src/shared/layout/`: `AppShell.tsx` presentacional con `BrandMark`, `DesktopNavigation`,
+  `BottomNavigation` (barra inferior tipo app en móvil) y `UserMenu`. Vive en `shared` y recibe
+  todo por props, porque `shared` no puede importar de features.
+- `src/app/layout/AuthenticatedLayout.tsx` y `use-navigation-items.ts`: contenedor que lee la
+  sesión y arma la navegación por capacidad (Métricas solo con `VIEW_METRICS`).
+- `src/features/auth/`: `api/auth.api.ts`, `session-storage.ts` (token en `incidents.token`,
+  usuario en `incidents.user`, lectura validada y tolerante a fallos), `session-events.ts`
+  (evento de sesión expirada que el `http-client` emite ante un 401 y el `AuthProvider` escucha),
+  `AuthProvider.tsx`, `auth-context.ts`, `session.types.ts`, `hooks/use-auth.ts` (`useAuth`,
+  `useSession`, `useCapability`), `hooks/use-login-form.ts`, `components/` (`LoginForm`,
+  `LoginCredentialsFields`, `DemoAccountsCard` con botón para autocompletar, `LoginBrandPanel`,
+  `ProtectedRoute` por capacidad), `pages/LoginPage.tsx` y `auth.copy.ts`.
+- `src/app/configure-http-client.ts`: conecta el token y el evento de sesión expirada al cliente
+  HTTP antes del primer render.
+- `src/shared/copy/domain-labels.copy.ts`, `src/shared/lib/format.ts` (fechas en `TIME_ZONE`,
+  expuesta desde el `.env` raíz con `envPrefix`), `initials.ts`, `shared/api/error-message.ts`.
+- Router: `/login` pública; `/` redirige a `/incidents`; rutas protegidas bajo el layout; la
+  bandeja es una página mínima que el commit 21 completa.
 
-**Verificación:** las tres cuentas aterrizan en la bandeja (CA-01); credenciales erróneas
-muestran el error en línea; un token inválido redirige a `/login`.
+**Verificación:** con Chrome headless: sin sesión redirige a `/login`; credenciales erróneas
+muestran el error en línea; el botón de cuenta demo autocompleta; el login aterriza en la
+bandeja (CA-01); cerrar sesión limpia el almacenamiento; capturas a 1440 px y 390 px sin desborde
+horizontal ni objetivos táctiles menores a 44 px.
 
 ---
 

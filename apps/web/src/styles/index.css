@@ -3,13 +3,15 @@
 @theme {
   --color-accent: var(--color-blue-900);
   --color-accent-hover: var(--color-blue-950);
-  --color-accent-ring: var(--color-blue-700);
+  --color-accent-ring: var(--color-blue-600);
   --color-accent-muted: var(--color-blue-50);
+  --color-accent-soft: var(--color-blue-100);
 }
 
 @layer base {
   html {
     @apply bg-slate-50 text-slate-900 antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {

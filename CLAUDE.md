@@ -254,11 +254,12 @@ src/
 ```
 src/
 ├── main.tsx
-├── app/                         App, proveedores, router, rutas, QueryClient
+├── app/                         App, proveedores, router, QueryClient
+│   └── layout/                  contenedor del layout autenticado (lee sesión y capacidades)
 ├── shared/
 │   ├── api/                     http-client y ApiError
-│   ├── ui/                      kit de componentes genéricos
-│   ├── layout/                  layout autenticado, cabecera, navegación
+│   ├── ui/                      kit de componentes genéricos e íconos SVG propios
+│   ├── layout/                  AppShell presentacional (cabecera, navegación, menú de usuario)
 │   ├── hooks/                   hooks genéricos
 │   ├── lib/                     utilidades puras
 │   ├── routing/                 rutas de la app (las features no pueden importar de app/)
