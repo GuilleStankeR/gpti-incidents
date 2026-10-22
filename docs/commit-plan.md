@@ -29,7 +29,7 @@ verificación manual propia.
 | 12 | Backend | `feat(api): add incident creation and detail` | [x] |
 | 13 | Backend | `feat(api): add incident inbox with filters` | [x] |
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [x] |
-| 15 | Backend | `feat(api): add evidence attachment and file download` | [ ] |
+| 15 | Backend | `feat(api): add evidence attachment and file download` | [x] |
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [ ] |
 | 17 | Backend | `feat(api): add case file pdf export` | [ ] |
 | 18 | Backend | `feat(api): add metrics endpoint` | [ ] |
@@ -583,17 +583,28 @@ tres transiciones simultáneas del mismo incidente producen un solo cambio y una
 **Archivos:**
 - `incident-evidence.service.ts` (en `incidents/`): `attach(user, id, photos)`: alcance (el
   residente solo los propios), `assertCanAttachEvidence` (`EVIDENCE_NOT_ALLOWED` en terminales),
-  al menos una foto; en `$transaction`: archivos, filas y bitácora "Se adjuntaron N evidencias"
-  (copy con singular y plural).
-- `incidents.controller.ts`: `POST /incidents/:id/evidence`.
-- `src/modules/evidence/`: `evidence.controller.ts` (`GET /evidence/:id/file`),
-  `evidence.service.ts` (busca la evidencia con alcance sobre el incidente padre; 404 si no es
-  visible), respuesta `StreamableFile` con `Content-Type` real y `Cache-Control: private`.
-  `evidence.module.ts`.
+  al menos una foto (`INVALID_FILE`).
+- `incident-write.repository.ts`: `attachEvidence` guarda los archivos y, en una transacción,
+  confirma que el incidente sigue en el mismo estado, inserta las filas y la bitácora
+  ("Se adjuntó 1 evidencia" / "Se adjuntaron N evidencias"); si el estado cambió, descarta los
+  archivos.
+- `incident-workflow.repository.ts`: los cambios de estado y de responsable pasan a su propio
+  repositorio; `incident-state-guard.repository.ts` concentra el `updateMany` condicionado.
+- `audit-trail.repository.ts` mapea campo por campo (un spread con campos de más rompería el
+  insert en tiempo de ejecución).
+- `incidents.controller.ts`: `POST /incidents/:incidentId/evidence`.
+- `src/modules/evidence/`: `evidence.controller.ts` (`GET /evidence/:evidenceId/file`),
+  `evidence-download.service.ts` (busca la evidencia con alcance sobre el incidente padre; 404 si
+  no es visible), `EvidenceRepository.findAccessible`; respuesta `StreamableFile` con
+  `Content-Type` real, `Content-Disposition` con nombre UTF-8 y `Cache-Control: private,
+  no-store`.
+- `src/common/http/content-disposition.ts`: encabezado con nombre ASCII y `filename*` UTF-8,
+  reutilizado por el PDF.
 
 **Verificación:** tras adjuntar, el cierre que fallaba tiene éxito (CA-09); el hash de la
-respuesta coincide con `shasum -a 256` del archivo original (CA-13); un residente no descarga
-evidencia ajena (404).
+respuesta coincide con `shasum -a 256` del archivo original y del descargado (CA-13); un
+residente no descarga evidencia ajena ni adjunta a incidentes ajenos (404); adjuntar a un cerrado
+→ `EVIDENCE_NOT_ALLOWED`; el directorio de almacenamiento no se sirve como estático.
 
 ---
 

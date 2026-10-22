@@ -14,7 +14,7 @@ import {
   assertTransitionRequirements,
   assertValidNote,
 } from './domain/transition-policy';
-import { IncidentWriteRepository } from './incident-write.repository';
+import { IncidentWorkflowRepository } from './incident-workflow.repository';
 import type { IncidentDetailEntity } from './incidents.repository';
 import { IncidentsService } from './incidents.service';
 
@@ -24,7 +24,7 @@ export class IncidentWorkflowService {
 
   constructor(
     private readonly incidentsService: IncidentsService,
-    private readonly incidentWriteRepository: IncidentWriteRepository,
+    private readonly incidentWorkflowRepository: IncidentWorkflowRepository,
     private readonly usersRepository: UsersRepository,
   ) {}
 
@@ -44,7 +44,7 @@ export class IncidentWorkflowService {
     });
     const assigneeId = await this.resolveAssigneeForTransition(user, input);
 
-    const isApplied = await this.incidentWriteRepository.applyStatusChange({
+    const isApplied = await this.incidentWorkflowRepository.applyStatusChange({
       incidentId,
       condominiumId: user.condominiumId,
       fromStatus: incident.status,
@@ -70,7 +70,7 @@ export class IncidentWorkflowService {
     assertValidNote(input.note);
     await this.requireAssignableUser(user, input.assigneeId);
 
-    const isApplied = await this.incidentWriteRepository.applyAssigneeChange({
+    const isApplied = await this.incidentWorkflowRepository.applyAssigneeChange({
       incidentId,
       condominiumId: user.condominiumId,
       status: incident.status,

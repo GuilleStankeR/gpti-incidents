@@ -1,4 +1,9 @@
+import { Injectable } from '@nestjs/common';
+import type { Evidence } from '@prisma/client';
+
 import type { DatabaseTransaction } from '@/database/database-transaction';
+import { PrismaService } from '@/database/prisma.service';
+import type { VisibilityScope } from '@/modules/incidents/domain/visibility';
 
 import type { StoredPhoto } from './stored-photo';
 
@@ -23,4 +28,18 @@ export async function insertEvidenceBatch(
       sha256: photo.sha256,
     })),
   });
+}
+
+@Injectable()
+export class EvidenceRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async findAccessible(scope: VisibilityScope, evidenceId: string): Promise<Evidence | null> {
+    return this.prisma.evidence.findFirst({
+      where: {
+        id: evidenceId,
+        incident: { condominiumId: scope.condominiumId, reporterId: scope.reporterId },
+      },
+    });
+  }
 }

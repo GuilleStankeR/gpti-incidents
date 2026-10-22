@@ -14,5 +14,13 @@ export async function appendAuditEntry(
   transaction: DatabaseTransaction,
   entry: NewAuditEntry,
 ): Promise<void> {
-  await transaction.auditEntry.create({ data: entry });
+  await transaction.auditEntry.create({
+    data: {
+      incidentId: entry.incidentId,
+      fromStatus: entry.fromStatus,
+      toStatus: entry.toStatus,
+      userId: entry.userId,
+      note: entry.note,
+    },
+  });
 }

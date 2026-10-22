@@ -14,6 +14,7 @@ import type { StoredPhoto } from '@/modules/evidence/stored-photo';
 import { appendAuditEntry } from './audit-trail.repository';
 import { formatFolio } from './domain/folio';
 import { incrementFolioCounter } from './folio-counter.repository';
+import { updateIncidentIfInState } from './incident-state-guard.repository';
 
 export interface IncidentDraft {
   readonly id: string;
@@ -29,30 +30,19 @@ export interface IncidentDraft {
   readonly reporterId: string;
 }
 
-export interface StatusChange {
-  readonly incidentId: string;
-  readonly condominiumId: string;
-  readonly fromStatus: IncidentStatus;
-  readonly toStatus: IncidentStatus;
-  readonly assigneeId?: string;
-  readonly closedAt?: Date;
-  readonly userId: string;
-  readonly note: string;
-}
-
-export interface AssigneeChange {
-  readonly incidentId: string;
-  readonly condominiumId: string;
-  readonly status: IncidentStatus;
-  readonly assigneeId: string;
-  readonly userId: string;
-  readonly note: string;
-}
-
 export interface IncidentRegistration {
   readonly draft: IncidentDraft;
   readonly photos: readonly ValidatedPhoto[];
   readonly auditNote: string;
+}
+
+export interface EvidenceAttachment {
+  readonly incidentId: string;
+  readonly condominiumId: string;
+  readonly status: IncidentStatus;
+  readonly uploadedById: string;
+  readonly photos: readonly ValidatedPhoto[];
+  readonly note: string;
 }
 
 @Injectable()
@@ -64,7 +54,9 @@ export class IncidentWriteRepository {
   ) {}
 
   async register({ draft, photos, auditNote }: IncidentRegistration): Promise<string> {
-    return this.withStoredPhotos(draft.id, photos, async (transaction, storedPhotos) => {
+    const storedPhotos = await this.evidenceFiles.store(draft.id, photos);
+
+    return this.runOrDiscard(storedPhotos, async (transaction) => {
       const folio = await this.generateFolio(transaction, draft);
       await transaction.incident.create({ data: { ...draft, folio } });
       await insertEvidenceBatch(transaction, {
@@ -84,72 +76,42 @@ export class IncidentWriteRepository {
     });
   }
 
-  async applyStatusChange(change: StatusChange): Promise<boolean> {
-    return this.prisma.$transaction(async (transaction) => {
-      const { count } = await transaction.incident.updateMany({
-        where: {
-          id: change.incidentId,
-          condominiumId: change.condominiumId,
-          status: change.fromStatus,
-        },
-        data: { status: change.toStatus, assigneeId: change.assigneeId, closedAt: change.closedAt },
-      });
+  async attachEvidence(attachment: EvidenceAttachment): Promise<boolean> {
+    const storedPhotos = await this.evidenceFiles.store(attachment.incidentId, attachment.photos);
+    const isAttached = await this.runOrDiscard(storedPhotos, async (transaction) => {
+      const isStillInState = await updateIncidentIfInState(
+        transaction,
+        { ...attachment, expectedStatus: attachment.status },
+        { status: attachment.status },
+      );
 
-      if (count === 0) {
-        return false;
+      if (isStillInState) {
+        await insertEvidenceBatch(transaction, { ...attachment, photos: storedPhotos });
+        await appendAuditEntry(transaction, {
+          incidentId: attachment.incidentId,
+          fromStatus: attachment.status,
+          toStatus: attachment.status,
+          userId: attachment.uploadedById,
+          note: attachment.note,
+        });
       }
 
-      await appendAuditEntry(transaction, {
-        incidentId: change.incidentId,
-        fromStatus: change.fromStatus,
-        toStatus: change.toStatus,
-        userId: change.userId,
-        note: change.note,
-      });
-
-      return true;
+      return isStillInState;
     });
+
+    if (!isAttached) {
+      await this.evidenceFiles.discard(storedPhotos);
+    }
+
+    return isAttached;
   }
 
-  async applyAssigneeChange(change: AssigneeChange): Promise<boolean> {
-    return this.prisma.$transaction(async (transaction) => {
-      const { count } = await transaction.incident.updateMany({
-        where: {
-          id: change.incidentId,
-          condominiumId: change.condominiumId,
-          status: change.status,
-        },
-        data: { assigneeId: change.assigneeId },
-      });
-
-      if (count === 0) {
-        return false;
-      }
-
-      await appendAuditEntry(transaction, {
-        incidentId: change.incidentId,
-        fromStatus: change.status,
-        toStatus: change.status,
-        userId: change.userId,
-        note: change.note,
-      });
-
-      return true;
-    });
-  }
-
-  private async withStoredPhotos<TResult>(
-    incidentId: string,
-    photos: readonly ValidatedPhoto[],
-    work: (
-      transaction: DatabaseTransaction,
-      storedPhotos: readonly StoredPhoto[],
-    ) => Promise<TResult>,
+  private async runOrDiscard<TResult>(
+    storedPhotos: readonly StoredPhoto[],
+    work: (transaction: DatabaseTransaction) => Promise<TResult>,
   ): Promise<TResult> {
-    const storedPhotos = await this.evidenceFiles.store(incidentId, photos);
-
     try {
-      return await this.prisma.$transaction(async (transaction) => work(transaction, storedPhotos));
+      return await this.prisma.$transaction(work);
     } catch (error) {
       await this.evidenceFiles.discard(storedPhotos);
       throw error;

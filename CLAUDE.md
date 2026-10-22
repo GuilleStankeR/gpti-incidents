@@ -236,7 +236,8 @@ src/
     │   ├── incident-workflow.service.ts
     │   ├── incident-evidence.service.ts
     │   ├── incidents.repository.ts      consultas
-    │   ├── incident-write.repository.ts escrituras transaccionales del agregado
+    │   ├── incident-write.repository.ts    registro y evidencia (con archivos)
+    │   ├── incident-workflow.repository.ts cambios de estado y responsable
     │   ├── audit-trail.repository.ts
     │   ├── incidents.mapper.ts
     │   ├── incidents.copy.ts

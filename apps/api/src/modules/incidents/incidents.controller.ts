@@ -27,6 +27,7 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 import { ListIncidentsQueryDto } from './dto/list-incidents-query.dto';
 import { ReassignIncidentDto } from './dto/reassign-incident.dto';
 import { TransitionIncidentDto } from './dto/transition-incident.dto';
+import { IncidentEvidenceService } from './incident-evidence.service';
 import { IncidentRegistrationService } from './incident-registration.service';
 import { IncidentWorkflowService } from './incident-workflow.service';
 import { toIncidentDetail, toIncidentPage } from './incidents.mapper';
@@ -38,6 +39,7 @@ export class IncidentsController {
     private readonly incidentsService: IncidentsService,
     private readonly incidentRegistrationService: IncidentRegistrationService,
     private readonly incidentWorkflowService: IncidentWorkflowService,
+    private readonly incidentEvidenceService: IncidentEvidenceService,
   ) {}
 
   @Get()
@@ -86,6 +88,17 @@ export class IncidentsController {
     @Body() input: ReassignIncidentDto,
   ): Promise<IncidentDetail> {
     const incident = await this.incidentWorkflowService.reassign(user, incidentId, input);
+    return toIncidentDetail(incident, user.role);
+  }
+
+  @Post(':incidentId/evidence')
+  @UseInterceptors(PhotoUploadInterceptor)
+  async attachEvidence(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('incidentId', ResourceIdPipe) incidentId: string,
+    @UploadedFiles(PhotoFilesPipe) photos: readonly ValidatedPhoto[],
+  ): Promise<IncidentDetail> {
+    const incident = await this.incidentEvidenceService.attach(user, incidentId, photos);
     return toIncidentDetail(incident, user.role);
   }
 }
