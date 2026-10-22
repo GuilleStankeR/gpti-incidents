@@ -5,12 +5,9 @@ import { INCIDENT_STATUSES, MAX_PAGE_SIZE, SEARCH_MAX_LENGTH } from '@incidents/
 import type { IncidentStatus, ListIncidentsQuery } from '@incidents/shared';
 
 import { validationMessages } from '@/common/errors/validation-messages.copy';
+import { trimText } from '@/common/validation/trim-text';
 
 const MIN_PAGE = 1;
-
-function trimText({ value }: { readonly value: unknown }): unknown {
-  return typeof value === 'string' ? value.trim() : value;
-}
 
 export class ListIncidentsQueryDto implements ListIncidentsQuery {
   @IsOptional()

@@ -28,7 +28,7 @@ verificación manual propia.
 | 11 | Backend | `feat(api): add file storage and photo validation` | [x] |
 | 12 | Backend | `feat(api): add incident creation and detail` | [x] |
 | 13 | Backend | `feat(api): add incident inbox with filters` | [x] |
-| 14 | Backend | `feat(api): add incident transitions and reassignment` | [ ] |
+| 14 | Backend | `feat(api): add incident transitions and reassignment` | [x] |
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [ ] |
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [ ] |
 | 17 | Backend | `feat(api): add case file pdf export` | [ ] |
@@ -550,25 +550,29 @@ mayúsculas), rango de fechas y paginación por curl; un residente ve solo sus i
 **Objetivo:** A4 y A5: ciclo de vida con bitácora transaccional.
 
 **Archivos:**
-- `dto/transition-incident.dto.ts`: `targetStatus`, `assigneeId?`, `note` (mínimo 10).
+- `dto/transition-incident.dto.ts`: `targetStatus`, `assigneeId?` (UUID), `note`.
 - `dto/reassign-incident.dto.ts`: `assigneeId`, `note`.
+- `dto/note.decorator.ts`: `@IsAuditNote()` (recorte y largo 10 a 1000 con mensaje en español).
+- `src/common/validation/trim-text.ts`: transformación compartida por los DTO.
 - `incident-workflow.service.ts`:
   - `transition(user, id, input)`: carga en alcance (404) → rol permitido para el destino
     (`FORBIDDEN_ROLE`) → transición válida (`INVALID_TRANSITION`) → requisitos
-    (`ASSIGNEE_REQUIRED`, `CLOSURE_WITHOUT_EVIDENCE`) → responsable válido del mismo condominio y
-    rol asignable (`INVALID_ASSIGNEE`). En `$transaction`: `updateMany` condicionado al estado de
-    origen (si otra petición cambió el estado primero, `INVALID_TRANSITION`), `closedAt` cuando el
-    destino es `CLOSED`, entrada de bitácora. Log del evento como sustituto de notificación.
+    (`ASSIGNEE_REQUIRED`, `CLOSURE_WITHOUT_EVIDENCE`, observación) → responsable del mismo
+    condominio y rol asignable (`INVALID_ASSIGNEE`). `closedAt` cuando el destino es `CLOSED`.
+    Log del evento como sustituto de notificación.
   - `reassign(user, id, input)`: RN-06 (`INVALID_REASSIGNMENT`), bitácora con
     `fromStatus = toStatus = estado actual`.
-- `users.repository.ts`: `findAssignable(condominiumId, userId)`.
-- `incidents.controller.ts`: `POST /incidents/:id/transitions` y
-  `PATCH /incidents/:id/assignee` (`@Roles(ADMIN)`).
+- `incident-write.repository.ts`: `applyStatusChange` y `applyAssigneeChange` en una transacción
+  con `updateMany` condicionado a condominio y estado de origen; si otra petición cambió el
+  estado primero no se escribe nada y el servicio responde con el código de error del caso.
+- `incidents.controller.ts`: `POST /incidents/:incidentId/transitions` (200) y
+  `PATCH /incidents/:incidentId/assignee` (`@RequireCapability(MANAGE_ASSIGNMENTS)`).
 
 **Verificación:** `REPORTED → CLOSED` → `INVALID_TRANSITION` (CA-06); a `ASSIGNED` sin
 responsable → `ASSIGNEE_REQUIRED` (CA-07); cerrar sin evidencia → `CLOSURE_WITHOUT_EVIDENCE`
 (CA-08); conserje asignando → `FORBIDDEN_ROLE` (CA-10); cada transición agrega exactamente una
-entrada (CA-11).
+entrada (CA-11); un rechazado no se reabre; reasignar en `REPORTED` → `INVALID_REASSIGNMENT`;
+tres transiciones simultáneas del mismo incidente producen un solo cambio y una sola entrada.
 
 ---
 

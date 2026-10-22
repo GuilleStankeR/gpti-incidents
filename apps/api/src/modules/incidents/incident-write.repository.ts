@@ -29,6 +29,26 @@ export interface IncidentDraft {
   readonly reporterId: string;
 }
 
+export interface StatusChange {
+  readonly incidentId: string;
+  readonly condominiumId: string;
+  readonly fromStatus: IncidentStatus;
+  readonly toStatus: IncidentStatus;
+  readonly assigneeId?: string;
+  readonly closedAt?: Date;
+  readonly userId: string;
+  readonly note: string;
+}
+
+export interface AssigneeChange {
+  readonly incidentId: string;
+  readonly condominiumId: string;
+  readonly status: IncidentStatus;
+  readonly assigneeId: string;
+  readonly userId: string;
+  readonly note: string;
+}
+
 export interface IncidentRegistration {
   readonly draft: IncidentDraft;
   readonly photos: readonly ValidatedPhoto[];
@@ -61,6 +81,60 @@ export class IncidentWriteRepository {
       });
 
       return folio;
+    });
+  }
+
+  async applyStatusChange(change: StatusChange): Promise<boolean> {
+    return this.prisma.$transaction(async (transaction) => {
+      const { count } = await transaction.incident.updateMany({
+        where: {
+          id: change.incidentId,
+          condominiumId: change.condominiumId,
+          status: change.fromStatus,
+        },
+        data: { status: change.toStatus, assigneeId: change.assigneeId, closedAt: change.closedAt },
+      });
+
+      if (count === 0) {
+        return false;
+      }
+
+      await appendAuditEntry(transaction, {
+        incidentId: change.incidentId,
+        fromStatus: change.fromStatus,
+        toStatus: change.toStatus,
+        userId: change.userId,
+        note: change.note,
+      });
+
+      return true;
+    });
+  }
+
+  async applyAssigneeChange(change: AssigneeChange): Promise<boolean> {
+    return this.prisma.$transaction(async (transaction) => {
+      const { count } = await transaction.incident.updateMany({
+        where: {
+          id: change.incidentId,
+          condominiumId: change.condominiumId,
+          status: change.status,
+        },
+        data: { assigneeId: change.assigneeId },
+      });
+
+      if (count === 0) {
+        return false;
+      }
+
+      await appendAuditEntry(transaction, {
+        incidentId: change.incidentId,
+        fromStatus: change.status,
+        toStatus: change.status,
+        userId: change.userId,
+        note: change.note,
+      });
+
+      return true;
     });
   }
 

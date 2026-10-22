@@ -14,11 +14,8 @@ import { DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH } from '@incidents/share
 import type { CreateIncidentRequest } from '@incidents/shared';
 
 import { validationMessages } from '@/common/errors/validation-messages.copy';
+import { trimText } from '@/common/validation/trim-text';
 import { LOCATIONS } from '@/modules/catalogs/locations.catalog';
-
-function trimText({ value }: { readonly value: unknown }): unknown {
-  return typeof value === 'string' ? value.trim() : value;
-}
 
 function hasCoordinates(input: CreateIncidentDto): boolean {
   return input.latitude !== undefined || input.longitude !== undefined;
