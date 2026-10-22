@@ -119,7 +119,7 @@ export const OPEN_INCIDENTS: readonly SeedIncident[] = [
     occurredHoursBeforeReport: 1,
     description:
       'El portón vehicular quedó abierto tras una falla del control remoto. Un conserje controla el acceso mientras se repara.',
-    photosAtReport: 1,
+    photosAtReport: 0,
     hasCoordinates: false,
     outcome: {
       kind: 'open',
