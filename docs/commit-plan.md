@@ -17,7 +17,7 @@ verificación manual propia.
 | 01 | Reglas | `docs: add project rules and commit plan` | [x] |
 | 02 | Base | `chore(root): scaffold npm workspaces monorepo` | [x] |
 | 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [x] |
-| 04 | Base | `feat(shared): add shared domain package` | [ ] |
+| 04 | Base | `feat(shared): add shared domain package` | [x] |
 | 05 | Base | `feat(api): bootstrap nestjs application` | [ ] |
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [ ] |
 | 07 | Base | `feat(web): bootstrap react application` | [ ] |
@@ -175,34 +175,38 @@ commit con errores de lint.
 para API y web.
 
 **Archivos (`packages/shared`):**
-- `package.json`: `@incidents/shared`, `exports` con condiciones `types`, `import`
-  (`dist/esm`) y `require` (`dist/cjs`), scripts `build` y `typecheck`. Sin dependencias de
-  runtime.
-- `tsconfig.json` (typecheck), `tsconfig.cjs.json` y `tsconfig.esm.json`: doble compilación
-  porque Nest consume CommonJS y Vite consume ESM.
+- `package.json`: `@incidents/shared`, `"type": "module"`, `exports` con condiciones `types`,
+  `import` (`dist/esm`) y `require` (`dist/cjs`), scripts `build` y `typecheck`. Sin
+  dependencias de runtime.
+- `tsconfig.json` (`NodeNext`, typecheck: obliga a usar extensión `.js` en imports relativos),
+  `tsconfig.esm.json` y `tsconfig.cjs.json` (CommonJS + declaraciones en `dist/types`): doble
+  compilación porque Nest consume CommonJS y Vite consume ESM.
+- `scripts/write-package-type.mjs` (raíz): escribe `dist/cjs/package.json` con
+  `"type": "commonjs"` para que Node cargue ese build como CommonJS.
 - `src/incident-status.ts`: `IncidentStatus` (`as const` + tipo), `TERMINAL_STATUSES`,
-  `STATUS_TRANSITIONS: Readonly<Record<IncidentStatus, readonly IncidentStatus[]>>`,
-  `isTerminalStatus()`, `isTransitionAllowed()`.
-- `src/role.ts`: `Role`, `ASSIGNABLE_ROLES`.
-- `src/permissions.ts`: `Capability` (`VIEW_ALL_INCIDENTS`, `REASSIGN_ASSIGNEE`,
-  `DOWNLOAD_CASE_FILE`, `VIEW_METRICS`, `ATTACH_EVIDENCE_TO_ANY`), `ROLE_CAPABILITIES`,
-  `TRANSITION_ROLES` (quién puede ejecutar cada estado destino, según la matriz §3.5),
-  `hasCapability()`, `canRoleTransitionTo()`.
+  `REASSIGNABLE_STATUSES`, `STATUS_TRANSITIONS`, `isTerminalStatus()`,
+  `isReassignableStatus()`, `isTransitionAllowed()`.
+- `src/role.ts`: `Role`, `ASSIGNABLE_ROLES`, `isAssignableRole()`.
+- `src/permissions.ts`: `Capability` (`VIEW_ALL_INCIDENTS`, `MANAGE_ASSIGNMENTS`,
+  `DOWNLOAD_CASE_FILE`, `VIEW_METRICS`), `ROLE_CAPABILITIES`, `TRANSITION_ROLES` (quién puede
+  ejecutar cada estado destino, según la matriz §3.5), `hasCapability()`,
+  `getRolesWithCapability()`, `canRoleTransitionTo()`.
 - `src/sla-status.ts`: `SlaStatus`.
 - `src/error-code.ts`: `ErrorCode` según el glosario de `CLAUDE.md`.
 - `src/limits.ts`: `DESCRIPTION_MIN_LENGTH`, `DESCRIPTION_MAX_LENGTH`, `NOTE_MIN_LENGTH`,
-  `OCCURRED_AT_MAX_AGE_DAYS`, `DEFAULT_PAGE_SIZE`, `MAX_PAGE_SIZE`,
-  `DEFAULT_METRICS_PERIOD_DAYS`, `ACCEPTED_PHOTO_MIME_TYPES`.
+  `NOTE_MAX_LENGTH`, `SEARCH_MAX_LENGTH`, `OCCURRED_AT_MAX_AGE_DAYS`, `DEFAULT_PAGE`,
+  `DEFAULT_PAGE_SIZE`, `MAX_PAGE_SIZE`, `DEFAULT_METRICS_PERIOD_DAYS`,
+  `ACCEPTED_PHOTO_MIME_TYPES`.
 - `src/date-format.ts`: `formatDateTime(date, timeZone)` con `Intl.DateTimeFormat('es-CL')` y
   `formatToParts` para garantizar `dd-MM-yyyy HH:mm`.
-- `src/contracts/`: `auth.contracts.ts`, `catalogs.contracts.ts`, `users.contracts.ts`,
-  `incidents.contracts.ts`, `evidence.contracts.ts`, `metrics.contracts.ts`,
-  `pagination.contracts.ts`, `api-error.contracts.ts`. Interfaces de request y response con los
-  nombres del glosario.
-- `src/index.ts`: barrel del paquete.
+- `src/contracts/`: `auth`, `catalogs`, `users`, `incidents`, `evidence`, `audit-trail`,
+  `metrics`, `pagination` y `api-error`. Interfaces de request y response con los nombres del
+  glosario; los nombres evitan chocar con los modelos de Prisma (`IncidentSummary`,
+  `IncidentDetail`, `EvidenceItem`, `AuditEntryItem`, `CatalogCategory`, `SessionUser`).
+- `src/index.ts`: barrel del paquete (`export type *` para los contratos).
 
-**Verificación:** `npm run build -w @incidents/shared` genera `dist/cjs`, `dist/esm` y tipos;
-lint y typecheck en verde.
+**Verificación:** `npm run build -w @incidents/shared` genera `dist/cjs`, `dist/esm` y tipos; el
+paquete carga desde Node con `require` y con `import`; lint y typecheck en verde.
 
 ---
 

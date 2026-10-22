@@ -87,8 +87,16 @@ usuarios, descripciones del seed) también están en español.
 | Semáforo de SLA | `SlaStatus`: `ON_TRACK`, `AT_RISK`, `OVERDUE` |
 | Transiciones posibles | `availableTransitions` |
 | Usuarios asignables | `assignable users` |
+| Usuario de una entrada de bitácora | `user` |
+| Capacidad de un perfil | `Capability`: `VIEW_ALL_INCIDENTS`, `MANAGE_ASSIGNMENTS`, `DOWNLOAD_CASE_FILE`, `VIEW_METRICS` |
 | Bandeja | `Inbox` |
+| Filtros: estado / categoría / desde / hasta / texto | `status` / `category` / `from` / `to` / `search` |
+| Paginación: datos / página / por página | `items` / `page` / `pageSize` |
 | Métricas | `Metrics` |
+| Período / Total de incidentes / Por estado / Por categoría / Cantidad | `period` / `totalIncidents` / `byStatus` / `byCategory` / `count` |
+| Tiempo promedio de resolución (horas) | `averageResolutionHours` |
+| Porcentaje dentro de SLA / con evidencia al cierre | `percentWithinSla` / `percentWithEvidenceAtClosure` |
+| Abiertos vencidos | `openOverdue` |
 | Ruta de archivo / Nombre original / Tamaño / Hash | `storagePath` / `originalName` / `sizeBytes` / `sha256` |
 | Subido por / Creado en | `uploadedBy` / `createdAt` |
 
@@ -179,7 +187,9 @@ src/
 └── contracts/                   interfaces de request y response por recurso
 ```
 
-Sin dependencias de runtime. No importa nada de `apps/`.
+Sin dependencias de runtime. No importa nada de `apps/`. Es un paquete ESM (`"type": "module"`,
+`NodeNext`): los imports relativos llevan extensión `.js`, y el compilador lo exige. Se compila dos
+veces: ESM para la web y CommonJS para la API.
 
 ### 6.2 `apps/api`
 
