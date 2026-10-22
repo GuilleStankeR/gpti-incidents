@@ -37,7 +37,7 @@ verificación manual propia.
 | 20 | Frontend | `feat(web): add authentication and app layout` | [x] |
 | 21 | Frontend | `feat(web): add incidents inbox` | [x] |
 | 22 | Frontend | `feat(web): add report incident form` | [x] |
-| 23 | Frontend | `feat(web): add incident detail and actions` | [ ] |
+| 23 | Frontend | `feat(web): add incident detail and actions` | [x] |
 | 24 | Frontend | `feat(web): add metrics dashboard` | [ ] |
 | 25 | Cierre | `docs: add readme and acceptance checklist` | [ ] |
 
@@ -844,22 +844,34 @@ igual (CA-15).
 **Objetivo:** detalle con mapa, evidencia, bitácora y acciones (A4, A5, A7, A8).
 
 **Archivos (`src/features/incidents/`):**
-- `hooks/`: `use-incident.ts`, `use-transition-incident.ts`, `use-reassign-incident.ts`,
-  `use-attach-evidence.ts`, `use-assignable-users.ts` (solo habilitado para admin),
-  `use-case-file-download.ts` (blob y descarga con el nombre del expediente),
-  `use-protected-image.ts` (blob a object URL con liberación).
-- `components/`: `IncidentHeader.tsx`, `CreatedFolioNotice.tsx`, `IncidentInfoCard.tsx`,
-  `LocationMap.tsx` (iframe de OpenStreetMap, dirección y enlace externo), `EvidenceGallery.tsx`,
-  `ProtectedImage.tsx`, `EvidenceViewerModal.tsx` (imagen completa con hash),
-  `AuditTimeline.tsx` y `AuditTimelineItem.tsx`, `IncidentActionsBar.tsx` (un botón por
-  `availableTransitions`, más reasignar y descargar según capacidades), `TransitionModal.tsx`
-  (selector de responsable si el destino es `ASSIGNED`, observación con contador, error dentro
-  del modal sin perder lo escrito), `ReassignModal.tsx`, `AttachEvidencePanel.tsx`.
-- `src/shared/ui/`: `Modal.tsx` (`role="dialog"`, Escape, foco inicial), `NoteField.tsx`.
-- `pages/IncidentDetailPage.tsx`.
+- `api/`: `transitionIncident`, `reassignIncident`, `attachEvidence`, `downloadCaseFile`,
+  `getEvidenceFile`, `users.api.ts`; claves `lists` y `evidenceKeys`.
+- `hooks/`: `use-incident-mutations.ts` (transición, reasignación y evidencia; actualizan el
+  detalle en caché e invalidan los listados), `use-assignable-users.ts` (solo con
+  `MANAGE_ASSIGNMENTS`), `use-action-form-fields.ts` y `use-transition-form.ts` (observación y
+  responsable con validación local), `use-case-file-download.ts`, `use-evidence-image.ts` (blob a
+  data URL: evita los problemas de ciclo de vida de los object URL con StrictMode).
+- `components/detail/`: `IncidentDetailView`, `IncidentDetailHeader`, `IncidentInfoCard`,
+  `LocationCard` y `MapLocationDetails` (iframe de OpenStreetMap, dirección, coordenadas y enlace
+  externo), `EvidenceGalleryCard`, `EvidenceGrid`, `EvidenceThumbnail`, `ProtectedImage`,
+  `EvidenceViewer` (imagen completa y hash), `AttachEvidencePanel` (reutiliza el selector de
+  fotos del reporte), `AuditTimelineCard` y `AuditTimelineItem`, `IncidentActionsCard`,
+  `TransitionButtons`, `IncidentActionDialogs`, `TransitionForm`, `ReassignForm`,
+  `AssigneeSelect`, `NoteField`, `DialogFooter` (error del backend dentro del modal sin perder lo
+  escrito), `CaseFileDownloadButton`, `CreatedFolioNotice`.
+- `presentation/transition-actions.ts` y `map-urls.ts`; `incident-detail.copy.ts`.
+- `src/shared/ui/`: `Modal` y `ModalHeader` (portal, `role="dialog"`, Escape, foco y bloqueo de
+  scroll; hoja inferior en móvil), `DescriptionList`; `shared/hooks/use-modal-behavior.ts`;
+  `shared/lib/blob.ts`; `formatFileSize`; el `http-client` acepta rutas que ya incluyen `/api`.
+- `pages/IncidentDetailPage.tsx`: en escritorio, columna principal y acciones en una columna
+  lateral fija; en móvil, acciones primero.
 
-**Verificación:** recorrido completo del guion §12 de la especificación, pasos 4 a 9 (CA-06 a
-CA-11, CA-14, CA-17) desde la interfaz; un conserje no ve el botón de asignar (CA-10).
+**Verificación:** con Chrome headless se recorren los pasos 4 a 9 del guion §12: revisión,
+asignación a Luis Meneses (con validación local de responsable y observación), inicio, intento
+de cierre sin evidencia con el rechazo dentro del modal conservando la observación (CA-08),
+carga de una fotografía y cierre exitoso (CA-09), bitácora con 6 entradas (CA-11), descarga de
+`expediente-{folio}.pdf` (CA-17) y visor con el hash completo; el conserje no ve "Asignar
+responsable" (CA-10); mapa con dirección (CA-14); sin desborde a 390 px.
 
 ---
 

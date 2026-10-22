@@ -269,7 +269,7 @@ src/
 │   ├── incidents/
 │   └── metrics/
 │       ├── api/                 <feature>.api.ts y <feature>.keys.ts
-│       ├── components/          componentes de la feature
+│       ├── components/          componentes de la feature (subcarpetas por vista si crecen)
 │       ├── hooks/               use-*.ts
 │       ├── pages/               páginas enrutables
 │       └── <feature>.copy.ts

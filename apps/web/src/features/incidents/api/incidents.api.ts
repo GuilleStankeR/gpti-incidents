@@ -3,6 +3,8 @@ import type {
   IncidentSummary,
   ListIncidentsQuery,
   PaginatedResponse,
+  ReassignIncidentRequest,
+  TransitionIncidentRequest,
 } from '@incidents/shared';
 
 import type { Coordinates } from '@/features/incidents/incident.types';
@@ -51,4 +53,37 @@ export async function getIncident(incidentId: string): Promise<IncidentDetail> {
 
 export async function createIncident(input: NewIncidentInput): Promise<IncidentDetail> {
   return httpClient.postForm<IncidentDetail>(INCIDENTS_PATH, buildIncidentFormData(input));
+}
+
+export async function transitionIncident(
+  incidentId: string,
+  request: TransitionIncidentRequest,
+): Promise<IncidentDetail> {
+  return httpClient.post<IncidentDetail>(`${INCIDENTS_PATH}/${incidentId}/transitions`, request);
+}
+
+export async function reassignIncident(
+  incidentId: string,
+  request: ReassignIncidentRequest,
+): Promise<IncidentDetail> {
+  return httpClient.patch<IncidentDetail>(`${INCIDENTS_PATH}/${incidentId}/assignee`, request);
+}
+
+export async function attachEvidence(
+  incidentId: string,
+  photos: readonly File[],
+): Promise<IncidentDetail> {
+  const formData = new FormData();
+  for (const photo of photos) {
+    formData.append(PHOTOS_FIELD, photo);
+  }
+  return httpClient.postForm<IncidentDetail>(`${INCIDENTS_PATH}/${incidentId}/evidence`, formData);
+}
+
+export async function downloadCaseFile(incidentId: string): Promise<Blob> {
+  return httpClient.getBlob(`${INCIDENTS_PATH}/${incidentId}/case-file.pdf`);
+}
+
+export async function getEvidenceFile(url: string): Promise<Blob> {
+  return httpClient.getBlob(url);
 }

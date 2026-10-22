@@ -34,7 +34,8 @@ function buildUrl(path: string, query: QueryParams = {}): string {
   }
 
   const queryString = searchParams.toString();
-  return `${API_BASE_PATH}${path}${queryString.length > 0 ? `?${queryString}` : ''}`;
+  const basePath = path.startsWith(`${API_BASE_PATH}/`) ? path : `${API_BASE_PATH}${path}`;
+  return `${basePath}${queryString.length > 0 ? `?${queryString}` : ''}`;
 }
 
 function buildHeaders(extraHeaders: Readonly<Record<string, string>>): Headers {

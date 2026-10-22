@@ -1,8 +1,94 @@
+import type { IncidentStatus } from '@incidents/shared';
+
 export const incidentDetailCopy = {
+  back: 'Volver a la bandeja',
+  caseFileName: (folio: string): string => `expediente-${folio}.pdf`,
   createdNotice: {
     title: (folio: string): string => `Incidente registrado con el folio ${folio}`,
     description:
       'Guarda este folio para hacer seguimiento. La fecha de registro quedó asignada por el sistema.',
   },
-  back: 'Volver a la bandeja',
+  header: {
+    reportedBy: (name: string, date: string): string => `Reportado por ${name} el ${date}`,
+  },
+  info: {
+    title: 'Información del incidente',
+    category: 'Categoría',
+    location: 'Ubicación',
+    occurredAt: 'Fecha del hecho',
+    reportedAt: 'Fecha de registro',
+    dueAt: 'Plazo comprometido',
+    closedAt: 'Fecha de cierre',
+    reporter: 'Reportante',
+    assignee: 'Responsable',
+    unassigned: 'Sin responsable asignado',
+    description: 'Descripción',
+  },
+  map: {
+    title: 'Ubicación geográfica',
+    iframeTitle: (folio: string): string => `Mapa del incidente ${folio}`,
+    openExternal: 'Abrir en OpenStreetMap',
+    coordinates: (latitude: string, longitude: string): string => `${latitude}, ${longitude}`,
+    addressPending: 'Dirección no disponible',
+    noCoordinates: 'El reporte no incluye coordenadas geográficas.',
+  },
+  actions: {
+    title: 'Acciones',
+    none: 'No hay acciones disponibles para tu perfil en el estado actual.',
+    reassign: 'Reasignar responsable',
+    downloadCaseFile: 'Descargar expediente',
+    downloadError: 'No pudimos descargar el expediente.',
+    transitions: {
+      REPORTED: 'Registrar',
+      UNDER_REVIEW: 'Pasar a revisión',
+      REJECTED: 'Rechazar',
+      ASSIGNED: 'Asignar responsable',
+      IN_PROGRESS: 'Iniciar ejecución',
+      CLOSED: 'Cerrar incidente',
+    } satisfies Readonly<Record<IncidentStatus, string>>,
+  },
+  dialogs: {
+    transitionDescription: (from: string, to: string): string =>
+      `El incidente pasará de «${from}» a «${to}». Este cambio queda registrado en la bitácora y no se puede revertir.`,
+    reassignDescription: 'El cambio de responsable queda registrado en la bitácora.',
+    assignee: 'Responsable',
+    assigneePlaceholder: 'Selecciona un responsable',
+    assigneeOption: (name: string, role: string): string => `${name} · ${role}`,
+    note: 'Observación',
+    notePlaceholder: 'Describe el motivo o el detalle de esta acción.',
+    noteHint: (minimum: number): string => `Obligatoria, mínimo ${String(minimum)} caracteres.`,
+    errorTitle: 'El sistema rechazó la acción',
+    confirm: 'Confirmar',
+    cancel: 'Cancelar',
+    noteTooShort: (minimum: number): string =>
+      `La observación debe tener al menos ${String(minimum)} caracteres.`,
+    assigneeRequired: 'Selecciona un responsable.',
+  },
+  evidence: {
+    title: 'Evidencia fotográfica',
+    count: (count: number): string =>
+      count === 1 ? '1 fotografía' : `${String(count)} fotografías`,
+    empty: 'Este incidente aún no tiene evidencia fotográfica.',
+    open: (name: string): string => `Ver ${name} en tamaño completo`,
+    imageAlt: (name: string): string => `Evidencia ${name}`,
+    unavailable: 'Imagen no disponible',
+    viewerTitle: 'Detalle de la evidencia',
+    originalName: 'Archivo',
+    uploadedBy: 'Cargada por',
+    uploadedAt: 'Fecha de carga',
+    size: 'Tamaño',
+    sha256: 'Hash SHA-256',
+    sha256Hint: 'Permite verificar que el archivo no fue alterado desde su carga.',
+    attachTitle: 'Adjuntar evidencia',
+    attachSubmit: (count: number): string =>
+      count === 1 ? 'Subir 1 fotografía' : `Subir ${String(count)} fotografías`,
+    attachErrorTitle: 'No pudimos adjuntar la evidencia',
+  },
+  auditTrail: {
+    title: 'Bitácora',
+    description: 'Registro inalterable de cada cambio del incidente.',
+    noStatusChange: 'Sin cambio de estado',
+    actor: (name: string, role: string): string => `${name} (${role})`,
+    separator: ' · ',
+  },
 } as const;
