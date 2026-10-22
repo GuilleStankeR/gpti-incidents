@@ -12,15 +12,18 @@ interface AssigneeSelectProps {
 }
 
 export function AssigneeSelect({ value, error, onChange }: AssigneeSelectProps): ReactElement {
-  const users = useAssignableUsers().data ?? [];
+  const usersQuery = useAssignableUsers();
+  const users = usersQuery.data ?? [];
+  const copy = incidentDetailCopy.dialogs;
 
   return (
     <SelectField
-      label={incidentDetailCopy.dialogs.assignee}
-      placeholder={incidentDetailCopy.dialogs.assigneePlaceholder}
+      label={copy.assignee}
+      placeholder={usersQuery.isPending ? copy.assigneeLoading : copy.assigneePlaceholder}
+      disabled={usersQuery.isPending}
       options={users.map((user) => ({
         value: user.id,
-        label: incidentDetailCopy.dialogs.assigneeOption(user.name, roleLabels[user.role]),
+        label: copy.assigneeOption(user.name, roleLabels[user.role]),
       }))}
       value={value}
       error={error}

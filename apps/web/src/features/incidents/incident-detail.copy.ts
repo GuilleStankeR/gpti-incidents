@@ -53,6 +53,7 @@ export const incidentDetailCopy = {
     reassignDescription: 'El cambio de responsable queda registrado en la bitácora.',
     assignee: 'Responsable',
     assigneePlaceholder: 'Selecciona un responsable',
+    assigneeLoading: 'Cargando responsables…',
     assigneeOption: (name: string, role: string): string => `${name} · ${role}`,
     note: 'Observación',
     notePlaceholder: 'Describe el motivo o el detalle de esta acción.',
