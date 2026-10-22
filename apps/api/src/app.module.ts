@@ -9,6 +9,7 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { CaseFilesModule } from '@/modules/case-files/case-files.module';
 import { CatalogsModule } from '@/modules/catalogs/catalogs.module';
 import { IncidentsModule } from '@/modules/incidents/incidents.module';
+import { MetricsModule } from '@/modules/metrics/metrics.module';
 import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { UsersModule } from '@/modules/users/users.module';
     UsersModule,
     IncidentsModule,
     CaseFilesModule,
+    MetricsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: ApiExceptionFilter },

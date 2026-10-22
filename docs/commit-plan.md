@@ -32,7 +32,7 @@ verificación manual propia.
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [x] |
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [x] |
 | 17 | Backend | `feat(api): add case file pdf export` | [x] |
-| 18 | Backend | `feat(api): add metrics endpoint` | [ ] |
+| 18 | Backend | `feat(api): add metrics endpoint` | [x] |
 | 19 | Backend | `feat(db): add historical incidents seed` | [ ] |
 | 20 | Frontend | `feat(web): add authentication and app layout` | [ ] |
 | 21 | Frontend | `feat(web): add incidents inbox` | [ ] |
@@ -680,17 +680,22 @@ numeración en cada hoja (CA-17), revisado renderizando cada página; un residen
 **Objetivo:** A9 con las definiciones exactas de la especificación.
 
 **Archivos (`src/modules/metrics/`):**
-- `dto/metrics.query.ts`: `from` y `to` opcionales; por defecto, últimos 90 días.
-- `metrics.repository.ts`: `groupBy` por estado y por categoría, cerrados del período con
-  `reportedAt`, `closedAt`, `dueAt` y conteo de evidencia, y no terminales vencidos.
-- `metrics.calculator.ts`: funciones puras para promedio de resolución (un decimal),
-  porcentaje dentro de SLA, porcentaje con evidencia al cierre y `null` cuando el denominador es
-  cero.
-- `metrics.service.ts`, `metrics.mapper.ts`, `metrics.controller.ts` (`@Roles(ADMIN)`),
-  `metrics.module.ts`.
+- `dto/metrics-query.dto.ts`: `from` y `to` opcionales (fecha sola = día completo en
+  `TIME_ZONE`); por defecto, los 90 días anteriores a `to` o a ahora.
+- `metrics.repository.ts`: conteo total, `groupBy` por estado y por categoría, catálogo de
+  categorías, cerrados con `reportedAt`, `closedAt`, `dueAt` y conteo de evidencia, y no
+  terminales vencidos; consultas en paralelo.
+- `domain/metrics-calculator.ts`: funciones puras para promedio de resolución (un decimal),
+  porcentaje dentro de SLA, porcentaje con evidencia al cierre (`null` cuando no hay cerrados) y
+  conteo por estado con ceros.
+- `metrics.service.ts`, `metrics.mapper.ts` (categorías con conteo, ordenadas de mayor a menor),
+  `metrics.controller.ts` (`@RequireCapability(VIEW_METRICS)`), `metrics.module.ts`.
+- Criterio de período: todas las métricas se calculan sobre la cohorte de incidentes registrados
+  en el período (`reportedAt`), incluidos los abiertos vencidos.
 
-**Verificación:** con datos del commit 19, `percentWithEvidenceAtClosure = 100` y
-`percentWithinSla ≈ 81` (CA-20); conserje → `FORBIDDEN_ROLE`.
+**Verificación:** los conteos coinciden con la base; un período sin cerrados devuelve `null` en
+los tres indicadores; conserje → `FORBIDDEN_ROLE`. Con los datos del commit 19,
+`percentWithEvidenceAtClosure = 100` y `percentWithinSla ≈ 81` (CA-20).
 
 ---
 
