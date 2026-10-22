@@ -15,7 +15,7 @@ verificación manual propia.
 | # | Fase | Commit | Estado |
 |---|---|---|---|
 | 01 | Reglas | `docs: add project rules and commit plan` | [x] |
-| 02 | Base | `chore(root): scaffold npm workspaces monorepo` | [ ] |
+| 02 | Base | `chore(root): scaffold npm workspaces monorepo` | [x] |
 | 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [ ] |
 | 04 | Base | `feat(shared): add shared domain package` | [ ] |
 | 05 | Base | `feat(api): bootstrap nestjs application` | [ ] |
@@ -49,7 +49,7 @@ de datos y la web arrancando, sin funcionalidades de negocio.
 
 | Paquete | Versión | Motivo |
 |---|---|---|
-| Node.js | 22 LTS (`.nvmrc`), `engines >= 20` | Especificación §4 |
+| Node.js | 22 LTS (`.nvmrc`), `engines >= 22` | La especificación pide 20 o superior; Node 20 ya no tiene soporte y parte del tooling exige 22 |
 | TypeScript | 5.9.x | typescript-eslint 8 no soporta TypeScript 6+ |
 | NestJS | 10.4.x (`@nestjs/cli` 10.4.x) | Especificación §4 |
 | Prisma / `@prisma/client` | 5.22.x | Especificación §4 |
@@ -82,8 +82,9 @@ de datos y la web arrancando, sin funcionalidades de negocio.
 
 **Archivos:**
 - `package.json` raíz: `private: true`, `workspaces: ["packages/*", "apps/*"]` (este orden
-  garantiza que `shared` compile primero), `engines.node: ">=20"`, scripts iniciales `setup`,
-  `dev`, `build`, `typecheck`, `db:up`, `db:down`. Dev deps: `typescript`, `concurrently`.
+  garantiza que `shared` compile primero), `engines.node: ">=22"`, scripts iniciales `setup`,
+  `build`, `typecheck`, `db:up`, `db:down`. Dev deps: `typescript`. El script `dev` y
+  `concurrently` llegan en el commit 07, cuando existen las dos apps.
 - `tsconfig.base.json`: `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`,
   `noImplicitReturns`, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`,
   `forceConsistentCasingInFileNames`, `isolatedModules`, `esModuleInterop`, `skipLibCheck`,
@@ -92,7 +93,8 @@ de datos y la web arrancando, sin funcionalidades de negocio.
 - `.gitignore`: `node_modules`, `dist`, `.env`, `apps/api/storage/`, `*.tsbuildinfo`,
   `.DS_Store`, logs.
 - `docker-compose.yml`: servicio `postgres` con `postgres:16-alpine`, credenciales y puerto desde
-  variables de `.env` (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`),
+  variables de `.env` (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`;
+  `DATABASE_URL` se compone por expansión desde ellas),
   volumen nombrado y `healthcheck` con `pg_isready` para que `docker compose up --wait` espere a
   que la base esté lista.
 - `.env.example` sin comentarios (la documentación de cada variable va en el README, commit 25):

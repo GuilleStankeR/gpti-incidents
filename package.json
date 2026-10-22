@@ -1,0 +1,23 @@
+{
+  "name": "gpti-incidents",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de Gestión y Reporte de Incidentes de Seguridad y Mantenimiento",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "node scripts/ensure-env.mjs && npm install",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
