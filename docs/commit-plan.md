@@ -27,7 +27,7 @@ verificación manual propia.
 | 10 | Backend | `feat(api): add pure incident domain rules` | [x] |
 | 11 | Backend | `feat(api): add file storage and photo validation` | [x] |
 | 12 | Backend | `feat(api): add incident creation and detail` | [x] |
-| 13 | Backend | `feat(api): add incident inbox with filters` | [ ] |
+| 13 | Backend | `feat(api): add incident inbox with filters` | [x] |
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [ ] |
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [ ] |
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [ ] |
@@ -526,18 +526,22 @@ lectura; un residente no ve el incidente de otro (404).
 **Objetivo:** A6 del lado servidor.
 
 **Archivos:**
-- `dto/list-incidents.query.ts`: `status`, `category`, `from`, `to` (instantes ISO; la web
-  convierte días locales a límites del día), `search`, `page` (≥ 1, por defecto 1),
-  `pageSize` (1 a 100, por defecto 20).
-- `incidents.repository.ts`: `findPage(scope, filters, pagination)`: `count` + `findMany` en
-  una transacción, orden `reportedAt desc`, búsqueda `insensitive` en `folio` y `description`,
-  `_count` de evidencia.
-- `incidents.mapper.ts`: `toIncidentSummary`.
-- `incidents.service.ts`: `list(user, query)` → `PaginatedResponse<IncidentSummary>`.
+- `dto/list-incidents-query.dto.ts`: `status`, `category`, `from`, `to` (ISO 8601: una fecha
+  sola se interpreta como el día completo en `TIME_ZONE`), `search` (recortada, máximo 100),
+  `page` (≥ 1, por defecto 1), `pageSize` (1 a 100, por defecto 20).
+- `src/common/time/time-zone.ts` (`startOfDayInTimeZone`) y `date-range.ts`
+  (`resolveDateRange`), reutilizados por métricas.
+- `incidents.repository.ts`: `findPage(scope, filters, pageRequest)`: `count` + `findMany` en
+  una transacción, orden `reportedAt desc` y `folio desc` como desempate, búsqueda
+  `insensitive` en `folio` y `description`, `_count` de evidencia; el rango filtra por
+  `reportedAt`.
+- `incidents.mapper.ts`: `toIncidentPage`.
+- `incidents.service.ts`: `list(user, query)` con valores por defecto de paginación.
 - `incidents.controller.ts`: `GET /incidents`.
 
-**Verificación:** combinaciones de filtros por curl; un residente ve solo sus incidentes
-(CA-02); `pageSize=500` → `VALIDATION_FAILED`.
+**Verificación:** filtros por estado, categoría, texto (folio y descripción, sin distinguir
+mayúsculas), rango de fechas y paginación por curl; un residente ve solo sus incidentes (CA-02);
+`pageSize=500`, un estado inexistente o una fecha inválida → `VALIDATION_FAILED`.
 
 ---
 

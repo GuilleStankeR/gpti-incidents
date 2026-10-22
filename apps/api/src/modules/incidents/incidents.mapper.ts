@@ -1,6 +1,6 @@
 import type { Category, Incident, User } from '@prisma/client';
 
-import type { IncidentDetail, IncidentSummary, Role } from '@incidents/shared';
+import type { IncidentDetail, IncidentSummary, PaginatedResponse, Role } from '@incidents/shared';
 
 import { toEvidenceItem } from '@/modules/evidence/evidence.mapper';
 import { toUserSummary } from '@/modules/users/users.mapper';
@@ -9,6 +9,7 @@ import { toAuditEntryItem } from './audit-trail.mapper';
 import { getHoursRemaining, getSlaStatus, isOverdue } from './domain/sla';
 import { getAvailableTransitions } from './domain/state-machine';
 import type { IncidentDetailEntity } from './incidents.repository';
+import type { IncidentPageResult } from './incidents.service';
 
 export type IncidentSummaryEntity = Incident & {
   readonly category: Category;
@@ -54,5 +55,19 @@ export function toIncidentDetail(
     availableTransitions: getAvailableTransitions(incident.status, viewerRole),
     evidence: incident.evidence.map(toEvidenceItem),
     auditTrail: incident.auditTrail.map(toAuditEntryItem),
+  };
+}
+
+export function toIncidentPage(
+  result: IncidentPageResult,
+  now: Date = new Date(),
+): PaginatedResponse<IncidentSummary> {
+  return {
+    items: result.items.map((incident) =>
+      toIncidentSummary(incident, incident._count.evidence, now),
+    ),
+    total: result.total,
+    page: result.pageRequest.page,
+    pageSize: result.pageRequest.pageSize,
   };
 }

@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 
-import type { IncidentDetail } from '@incidents/shared';
+import type { IncidentDetail, IncidentSummary, PaginatedResponse } from '@incidents/shared';
 
 import type { AuthenticatedUser } from '@/common/auth/authenticated-user';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -10,8 +19,9 @@ import type { ValidatedPhoto } from '@/common/files/validated-photo';
 import { ResourceIdPipe } from '@/common/pipes/resource-id.pipe';
 
 import { CreateIncidentDto } from './dto/create-incident.dto';
+import { ListIncidentsQueryDto } from './dto/list-incidents-query.dto';
 import { IncidentRegistrationService } from './incident-registration.service';
-import { toIncidentDetail } from './incidents.mapper';
+import { toIncidentDetail, toIncidentPage } from './incidents.mapper';
 import { IncidentsService } from './incidents.service';
 
 @Controller('incidents')
@@ -20,6 +30,14 @@ export class IncidentsController {
     private readonly incidentsService: IncidentsService,
     private readonly incidentRegistrationService: IncidentRegistrationService,
   ) {}
+
+  @Get()
+  async list(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListIncidentsQueryDto,
+  ): Promise<PaginatedResponse<IncidentSummary>> {
+    return toIncidentPage(await this.incidentsService.list(user, query));
+  }
 
   @Post()
   @UseInterceptors(PhotoUploadInterceptor)
