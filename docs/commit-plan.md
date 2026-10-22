@@ -16,7 +16,7 @@ verificación manual propia.
 |---|---|---|---|
 | 01 | Reglas | `docs: add project rules and commit plan` | [x] |
 | 02 | Base | `chore(root): scaffold npm workspaces monorepo` | [x] |
-| 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [ ] |
+| 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [x] |
 | 04 | Base | `feat(shared): add shared domain package` | [ ] |
 | 05 | Base | `feat(api): bootstrap nestjs application` | [ ] |
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [ ] |
@@ -116,13 +116,18 @@ idempotente; `npm run db:up` deja el contenedor `healthy`.
 **Dependencias (dev, raíz):** `eslint`, `@eslint/js`, `typescript-eslint`, `globals`,
 `eslint-plugin-import-x`, `eslint-import-resolver-typescript`, `eslint-plugin-unicorn`,
 `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`,
-`eslint-config-prettier`, `prettier`, `prettier-plugin-tailwindcss`, `husky`, `lint-staged`.
+`eslint-config-prettier`, `prettier`, `husky`, `lint-staged`.
+`prettier-plugin-tailwindcss` llega en el commit 07 junto con Tailwind.
 
 **Archivos:**
 - `tooling/eslint/no-comments.rule.mjs`: regla propia que reporta todo comentario
   (`sourceCode.getAllComments()`), salvo shebang.
 - `tooling/eslint/local.plugin.mjs`: plugin local que expone la regla.
-- `eslint.config.mjs`, organizado en bloques:
+- `tooling/eslint/constants.mjs`: globs por área del monorepo.
+- `tooling/eslint/configs/*.config.mjs`: un módulo por bloque (`base`, `typescript`, `imports`,
+  `unicorn`, `api`, `web`, `web-layers`, `shared-package`, `tooling`, `formatting`), para que
+  ningún archivo de configuración supere el máximo de líneas.
+- `eslint.config.mjs`: solo compone los módulos, en este orden de bloques:
   - Ignorados globales: `dist`, `node_modules`, `coverage`, `apps/api/storage`,
     `apps/api/prisma/migrations`.
   - `linterOptions`: `noInlineConfig: true`, `reportUnusedDisableDirectives: "error"`.
@@ -152,8 +157,8 @@ idempotente; `npm run db:up` deja el contenedor `healthy`.
   - Bloque `packages/shared`: prohibido importar de `apps/`.
   - Archivos de configuración: se permite `export default`.
   - `eslint-config-prettier` al final para desactivar reglas de formato.
-- `.prettierrc.json` (`singleQuote`, `semi`, `trailingComma: all`, `printWidth: 100`, plugin de
-  Tailwind), `.prettierignore`.
+- `.prettierrc.json` (`singleQuote`, `semi`, `trailingComma: all`, `printWidth: 100`),
+  `.prettierignore` (excluye Markdown para no reformatear la especificación ni los documentos).
 - `.husky/pre-commit` ejecuta `npx lint-staged`; configuración de `lint-staged` en el
   `package.json` raíz (ESLint `--max-warnings 0` y Prettier sobre los archivos en stage).
 - Scripts raíz: `lint`, `lint:fix`, `format`, `format:check`, `prepare` (husky).
