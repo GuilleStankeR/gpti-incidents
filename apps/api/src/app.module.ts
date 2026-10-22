@@ -5,9 +5,10 @@ import { ApiExceptionFilter } from '@/common/filters/api-exception.filter';
 import { createValidationPipe } from '@/common/pipes/validation.pipe';
 import { AppConfigModule } from '@/config/app-config.module';
 import { DatabaseModule } from '@/database/database.module';
+import { AuthModule } from '@/modules/auth/auth.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule],
+  imports: [AppConfigModule, DatabaseModule, AuthModule],
   providers: [
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
     { provide: APP_PIPE, useFactory: createValidationPipe },

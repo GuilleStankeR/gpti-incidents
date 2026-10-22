@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import type { JwtSettings, NominatimSettings, UploadSettings } from './app-config.types';
+import { parseDurationToSeconds } from './duration';
 import type { Environment } from './environment';
 
 const BYTES_PER_KILOBYTE = 1024;
@@ -20,7 +21,9 @@ export class AppConfig {
   get jwt(): JwtSettings {
     return {
       secret: this.configService.get('JWT_SECRET', { infer: true }),
-      expiresIn: this.configService.get('JWT_EXPIRES_IN', { infer: true }),
+      expiresInSeconds: parseDurationToSeconds(
+        this.configService.get('JWT_EXPIRES_IN', { infer: true }),
+      ),
     };
   }
 

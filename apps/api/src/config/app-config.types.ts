@@ -1,6 +1,6 @@
 export interface JwtSettings {
   readonly secret: string;
-  readonly expiresIn: string;
+  readonly expiresInSeconds: number;
 }
 
 export interface UploadSettings {

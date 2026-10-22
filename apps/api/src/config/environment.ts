@@ -11,10 +11,11 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { DURATION_PATTERN } from './duration';
+
 const MIN_TCP_PORT = 1;
 const MAX_TCP_PORT = 65_535;
 const MIN_JWT_SECRET_LENGTH = 16;
-const JWT_DURATION_PATTERN = /^\d+[smhd]$/;
 
 export class Environment {
   @IsString()
@@ -25,7 +26,7 @@ export class Environment {
   @MinLength(MIN_JWT_SECRET_LENGTH)
   readonly JWT_SECRET!: string;
 
-  @Matches(JWT_DURATION_PATTERN)
+  @Matches(DURATION_PATTERN)
   readonly JWT_EXPIRES_IN!: string;
 
   @IsInt()

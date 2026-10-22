@@ -40,8 +40,9 @@ negocio, matriz de permisos, contratos (traducidos según el glosario) y prohibi
    insuficiente, se propone el ajuste antes de desviarse.
 3. Un commit está listo cuando `npm run lint`, `npm run typecheck` y `npm run build` terminan sin
    errores ni advertencias (desde que existen esos scripts) y se cumplió su verificación manual.
-4. Al cerrar un commit se marca como completado en el plan, dentro del mismo commit, y se espera
-   revisión del usuario antes de empezar el siguiente.
+4. Al cerrar un commit se marca como completado en el plan, dentro del mismo commit, y se hace
+   `git push` inmediatamente. Se espera revisión del usuario antes de seguir, salvo que haya pedido
+   avanzar con un bloque de commits.
 5. Mensajes de commit en inglés con Conventional Commits: `type(scope): summary`.
    Tipos: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`. Scopes: `root`, `shared`, `api`,
    `db`, `web`, `docs`.
@@ -215,14 +216,15 @@ src/
 ├── config/                      esquema de entorno validado y AppConfig tipado
 ├── database/                    PrismaService y DatabaseModule
 ├── common/
+│   ├── auth/                    AuthenticatedUser y acceso al usuario de la petición
 │   ├── errors/                  DomainError, mapa código→HTTP, mensajes
 │   ├── filters/                 filtro global de excepciones
-│   ├── guards/                  AuthGuard, RolesGuard
-│   ├── decorators/              @Public, @Roles, @CurrentUser
-│   ├── files/                   validación de fotos, firma binaria, SHA-256
-│   └── types/                   AuthenticatedUser y tipos transversales
+│   ├── guards/                  CapabilityGuard
+│   ├── decorators/              @Public, @RequireCapability, @CurrentUser
+│   ├── pipes/                   ValidationPipe global
+│   └── files/                   validación de fotos, firma binaria, SHA-256
 └── modules/
-    ├── auth/
+    ├── auth/                    login, AccessTokenService y AuthGuard global
     ├── catalogs/
     ├── users/
     ├── incidents/
@@ -312,6 +314,8 @@ Una feature no importa de otra feature (salvo `auth`).
 - Las excepciones no se tragan. Solo se capturan para traducirlas o para aplicar una política
   explícita (por ejemplo, la geocodificación no bloqueante).
 - Nombres que revelan intención. Sin abreviaturas crípticas (`inc`, `usr`, `tmp`, `data2`).
+- El guion bajo inicial solo se permite en parámetros que el framework obliga a recibir y no se
+  usan (`_data`); en cualquier otro identificador está prohibido.
 
 ## 8. Backend (`apps/api`)
 
@@ -329,8 +333,9 @@ Una feature no importa de otra feature (salvo `auth`).
 
 ### 8.2 Reglas transversales
 
-- `AuthGuard` y `RolesGuard` globales. Los endpoints públicos se marcan con `@Public()` y la
-  autorización por perfil se declara con `@Roles(...)`.
+- `AuthGuard` y `CapabilityGuard` globales, en ese orden. Los endpoints públicos se marcan con
+  `@Public()`. La autorización se declara por capacidad con `@RequireCapability(...)`, que consulta
+  la matriz de `@incidents/shared`: nunca se listan perfiles a mano en un endpoint.
 - `ValidationPipe` global con `whitelist: true` y `transform: true`: los campos no declarados se
   descartan. `condominiumId`, `reporterId`, `reportedAt`, `folio`, `status`, `dueAt` y `closedAt`
   nunca forman parte de un DTO de entrada.

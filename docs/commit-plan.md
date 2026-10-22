@@ -22,7 +22,7 @@ verificación manual propia.
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [x] |
 | 07 | Base | `feat(web): bootstrap react application` | [x] |
 | 07b | Base | `chore(deps): upgrade stack to clear npm audit` | [x] |
-| 08 | Backend | `feat(api): add jwt authentication and role guards` | [ ] |
+| 08 | Backend | `feat(api): add jwt authentication and role guards` | [x] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [ ] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [ ] |
 | 11 | Backend | `feat(api): add file storage and photo validation` | [ ] |
@@ -374,18 +374,25 @@ levantan con `npm run dev`; el CSS generado incluye los tokens `accent`.
 **Archivos:**
 - `src/modules/auth/`: `auth.controller.ts` (`POST /auth/login`, `@Public()`),
   `auth.service.ts` (busca por email, compara con bcryptjs; si el email no existe compara contra
-  un hash fijo para no revelar usuarios por tiempo de respuesta; firma
-  `{ sub, role, condominiumId }` con HS256 y vigencia de `JWT_EXPIRES_IN`), `auth.mapper.ts`,
-  `dto/login.dto.ts`, `auth.module.ts`.
-- `src/modules/users/users.repository.ts`: `findByEmailWithCondominium`.
-- `src/common/types/authenticated-user.ts` y `authenticated-request.ts`.
-- `src/common/decorators/`: `public.decorator.ts`, `roles.decorator.ts`,
+  un hash fijo para no revelar usuarios por tiempo de respuesta), `access-token.service.ts`
+  (firma `{ sub, role, condominiumId }` con HS256 y vigencia de `JWT_EXPIRES_IN`; al verificar
+  valida la forma del payload), `auth.guard.ts` (Bearer → `request.authenticatedUser`;
+  `UNAUTHENTICATED`), `auth.mapper.ts`, `dto/login.dto.ts` (email normalizado a minúsculas),
+  `auth.module.ts` (registra `AuthGuard` y `CapabilityGuard` como `APP_GUARD`, en ese orden).
+- `src/modules/users/users.repository.ts` (`findByEmailWithCondominium`) y `users.module.ts`.
+- `src/common/auth/`: `authenticated-user.ts` y `authenticated-request.ts`
+  (`requireAuthenticatedUser`).
+- `src/common/decorators/`: `public.decorator.ts`, `require-capability.decorator.ts`,
   `current-user.decorator.ts`.
-- `src/common/guards/auth.guard.ts` (Bearer, verificación, `UNAUTHENTICATED`) y
-  `roles.guard.ts` (`FORBIDDEN_ROLE`), registrados como `APP_GUARD` en ese orden.
+- `src/common/guards/capability.guard.ts`: compara la capacidad requerida con la matriz de
+  `shared` (`FORBIDDEN_ROLE`).
+- `src/common/errors/validation-messages.copy.ts`: mensajes de validación en español.
+- `src/config/duration.ts`: convierte `JWT_EXPIRES_IN` (`8h`) a segundos.
+- Lint: los parámetros sin uso que exige el framework se nombran con guion bajo inicial.
 
-**Verificación:** las tres cuentas demo obtienen token; contraseña errónea → 401
-`INVALID_CREDENTIALS`; endpoint protegido sin token → 401 `UNAUTHENTICATED`.
+**Verificación:** las tres cuentas demo obtienen token con vigencia de 8 horas; contraseña
+errónea o email inexistente → 401 `INVALID_CREDENTIALS`; email inválido → 400 con mensaje en
+español. El rechazo sin token se verifica con el primer endpoint protegido (commit 09).
 
 ---
 

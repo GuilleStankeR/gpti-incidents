@@ -17,6 +17,12 @@ const NAMING_CONVENTION = [
   { selector: 'variable', types: ['boolean'], format: ['PascalCase'], prefix: BOOLEAN_PREFIXES },
   { selector: 'variable', modifiers: ['destructured'], format: null },
   { selector: 'function', format: ['camelCase', 'PascalCase'] },
+  {
+    selector: 'parameter',
+    modifiers: ['unused'],
+    format: ['camelCase'],
+    leadingUnderscore: 'require',
+  },
   { selector: 'typeLike', format: ['PascalCase'] },
   { selector: 'interface', format: ['PascalCase'], custom: { regex: '^I[A-Z]', match: false } },
   { selector: ['classProperty', 'typeProperty'], format: ['camelCase', 'UPPER_CASE'] },
