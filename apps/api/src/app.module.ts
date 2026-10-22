@@ -7,10 +7,18 @@ import { AppConfigModule } from '@/config/app-config.module';
 import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CatalogsModule } from '@/modules/catalogs/catalogs.module';
+import { IncidentsModule } from '@/modules/incidents/incidents.module';
 import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, AuthModule, CatalogsModule, UsersModule],
+  imports: [
+    AppConfigModule,
+    DatabaseModule,
+    AuthModule,
+    CatalogsModule,
+    UsersModule,
+    IncidentsModule,
+  ],
   providers: [
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
     { provide: APP_PIPE, useFactory: createValidationPipe },

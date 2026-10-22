@@ -26,7 +26,7 @@ verificación manual propia.
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [x] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [x] |
 | 11 | Backend | `feat(api): add file storage and photo validation` | [x] |
-| 12 | Backend | `feat(api): add incident creation and detail` | [ ] |
+| 12 | Backend | `feat(api): add incident creation and detail` | [x] |
 | 13 | Backend | `feat(api): add incident inbox with filters` | [ ] |
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [ ] |
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [ ] |
@@ -482,28 +482,42 @@ completo se ejerce en el commit 12.
 **Objetivo:** A2, A3 y A7 del lado servidor.
 
 **Archivos (`src/modules/incidents/`):**
-- `dto/create-incident.dto.ts`: `categoryCode`, `description` (10 a 2000), `location` (del
-  catálogo), `occurredAt` (ISO 8601), `latitude` y `longitude` opcionales y en pareja (numéricos
-  vía `@Type`).
-- `incidents.repository.ts`: `nextFolioSequence(tx, condominiumId, year)` con el `UPSERT`
-  atómico de §6.3, `create`, `findDetail(scope, id)` con relaciones.
-- `audit-trail.repository.ts`: `append(tx, entry)`; sin update ni delete.
-- `src/modules/evidence/evidence.repository.ts`: `createMany(tx, items)`; sin update ni delete.
-- `incidents.service.ts` → `create(user, input, photos)`: `reportedAt` del servidor; dentro de
-  `$transaction`: RN-07, categoría existente, folio, `dueAt`, incidente `REPORTED`, archivos al
-  storage con SHA-256, filas de evidencia, entrada inicial de bitácora (`fromStatus: null`). Si la
-  transacción falla, se eliminan los archivos ya escritos (compensación). `findDetail(user, id)`.
-- `incidents.mapper.ts`: `toIncidentDetail(entity, role, now)` con `availableTransitions`,
-  `isOverdue`, `hoursRemaining`, `slaStatus`, `url` de cada evidencia
-  (`/api/evidence/{id}/file`); sin `storagePath` ni `passwordHash`.
+- `dto/create-incident.dto.ts`: `categoryCode`, `description` (10 a 2000, recortada), `location`
+  (del catálogo), `occurredAt` (ISO 8601), `latitude` y `longitude` opcionales y en pareja
+  (numéricos vía `@Type`). Mensajes en `validation-messages.copy.ts`.
+- `folio-counter.repository.ts`: `incrementFolioCounter(transaction, condominiumId, year)` con el
+  `UPSERT` atómico de §6.3; función reutilizable por el seed.
+- `incident-write.repository.ts`: repositorio de escritura del agregado. `register` guarda los
+  archivos, abre la transacción (folio con el año en `TIME_ZONE`, incidente `REPORTED`, filas de
+  evidencia, entrada inicial de bitácora con `fromStatus: null`) y borra los archivos si la
+  transacción falla.
+- `incidents.repository.ts`: consultas (`findDetail(scope, id)` con relaciones y orden ascendente
+  de evidencia y bitácora; `toScopeFilter` aplica RN-10 y RN-11).
+- `audit-trail.repository.ts` (`appendAuditEntry`) y `audit-trail.mapper.ts`; sin update ni
+  delete.
+- `incidents.service.ts`: lecturas (`findDetail` → 404 si no está en alcance).
+- `incident-registration.service.ts`: `reportedAt` del servidor, RN-07, categoría existente,
+  `dueAt` (RN-09), registro y log del evento.
+- `incidents.mapper.ts`: `toIncidentSummary` y `toIncidentDetail(entity, role, now)` con
+  `availableTransitions`, `isOverdue`, `hoursRemaining`, `slaStatus` y `url` de cada evidencia;
+  sin `storagePath` ni `passwordHash`.
 - `incidents.copy.ts`: observación inicial de bitácora.
-- `incidents.controller.ts`: `POST /incidents` (multipart, `FilesInterceptor('photos')` +
-  `PhotoFilesPipe`) y `GET /incidents/:id`.
-- `incidents.module.ts`.
+- `incidents.controller.ts`: `POST /incidents` (multipart, `PhotoUploadInterceptor` +
+  `PhotoFilesPipe`) y `GET /incidents/:incidentId` (`ResourceIdPipe`: un id que no es UUID
+  responde 404).
+- `src/modules/evidence/`: `evidence-files.service.ts` (guarda y descarta archivos vía
+  `FileStorage`), `evidence.repository.ts` (`insertEvidenceBatch`), `evidence.mapper.ts`,
+  `stored-photo.ts`, `evidence.module.ts`.
+- `src/common/http/api-routes.ts` (prefijo `/api` y URL de archivo de evidencia),
+  `src/common/pipes/resource-id.pipe.ts`, `src/database/database-transaction.ts`,
+  `getYearInTimeZone` en `date-math.ts`.
 
 **Verificación:** crear con dos fotos devuelve 201 con folio `C29-2026-NNNN` y el correlativo
-avanza de a uno (CA-03); enviar `reportedAt` no lo altera (CA-04); `occurredAt` futura o de más
-de 30 días → `INVALID_OCCURRED_AT` (CA-05); un `.txt` renombrado a `.jpg` → `INVALID_FILE`.
+avanza de a uno (CA-03); ocho creaciones simultáneas producen folios consecutivos sin repetir;
+enviar `reportedAt` o `folio` no los altera (CA-04); `occurredAt` futura o de más de 30 días →
+`INVALID_OCCURRED_AT` (CA-05); un archivo que no es imagen, más de cinco fotos o una de más de
+5 MB → `INVALID_FILE`; el hash coincide con `shasum -a 256`; los archivos quedan en solo
+lectura; un residente no ve el incidente de otro (404).
 
 ---
 

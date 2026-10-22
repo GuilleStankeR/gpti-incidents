@@ -28,3 +28,7 @@ export function roundToDecimals(value: number, decimals: number): number {
 export function isValidDate(date: Date): boolean {
   return !Number.isNaN(date.getTime());
 }
+
+export function getYearInTimeZone(date: Date, timeZone: string): number {
+  return Number(new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric' }).format(date));
+}

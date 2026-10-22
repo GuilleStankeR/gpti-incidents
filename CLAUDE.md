@@ -231,10 +231,12 @@ src/
     │   ├── domain/              funciones puras: máquina de estados, folio, SLA, reglas
     │   ├── dto/
     │   ├── incidents.controller.ts
-    │   ├── incidents.service.ts
+    │   ├── incidents.service.ts         lecturas
+    │   ├── incident-registration.service.ts
     │   ├── incident-workflow.service.ts
     │   ├── incident-evidence.service.ts
-    │   ├── incidents.repository.ts
+    │   ├── incidents.repository.ts      consultas
+    │   ├── incident-write.repository.ts escrituras transaccionales del agregado
     │   ├── audit-trail.repository.ts
     │   ├── incidents.mapper.ts
     │   ├── incidents.copy.ts
@@ -325,8 +327,8 @@ Una feature no importa de otra feature (salvo `auth`).
 |---|---|---|
 | `domain/` | Reglas de negocio como funciones puras sobre datos planos. Lanza `DomainError` | Importar NestJS, Prisma, Express, `node:fs` ni nada con I/O |
 | `*.controller.ts` | HTTP: recibe DTO validado y `@CurrentUser()`, delega en un servicio, devuelve el resultado | Tener lógica, `try/catch`, Prisma, más de 15 líneas por método |
-| `*.service.ts` | Casos de uso: orquesta dominio, repositorios y puertos; maneja transacciones | Construir respuestas HTTP o lanzar `HttpException` |
-| `*.repository.ts` | Único lugar que usa `PrismaService` | Omitir el filtro por `condominiumId` |
+| `*.service.ts` | Casos de uso: orquesta dominio, repositorios y puertos | Construir respuestas HTTP, lanzar `HttpException` o abrir transacciones |
+| `*.repository.ts` | Único lugar que usa `PrismaService`. Las escrituras de un agregado que deben ser atómicas (incidente + evidencia + bitácora + folio) viven en su repositorio de escritura, que abre la transacción y compensa los archivos si falla | Omitir el filtro por `condominiumId` |
 | `*.mapper.ts` | Entidad Prisma → contrato de `@incidents/shared` | Exponer `passwordHash` o `storagePath` |
 | `dto/*.dto.ts` | Validación con `class-validator`, mensajes desde copy | Aceptar campos que define el servidor |
 | `*.port.ts` / `*.adapter.ts` | Interfaz de I/O externo y su implementación | Ser inyectados por clase concreta: se inyecta el token del puerto |
