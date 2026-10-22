@@ -36,7 +36,7 @@ verificación manual propia.
 | 19 | Backend | `feat(db): add historical incidents seed` | [x] |
 | 20 | Frontend | `feat(web): add authentication and app layout` | [x] |
 | 21 | Frontend | `feat(web): add incidents inbox` | [x] |
-| 22 | Frontend | `feat(web): add report incident form` | [ ] |
+| 22 | Frontend | `feat(web): add report incident form` | [x] |
 | 23 | Frontend | `feat(web): add incident detail and actions` | [ ] |
 | 24 | Frontend | `feat(web): add metrics dashboard` | [ ] |
 | 25 | Cierre | `docs: add readme and acceptance checklist` | [ ] |
@@ -812,20 +812,30 @@ token inválido devuelve al login; sin desborde a 390 px.
 **Objetivo:** reporte usable con una mano en el teléfono (A2, A10).
 
 **Archivos (`src/features/incidents/`):**
-- `hooks/use-report-incident-form.ts` (estado y validación con límites de `shared`),
-  `use-geolocation.ts` (estados `idle`, `locating`, `granted`, `denied`, `unavailable`),
-  `use-photo-selection.ts` (máximo desde `uploadLimits`, previsualización con object URLs y su
-  liberación), `use-create-incident.ts` (arma `FormData` y navega al detalle con el folio en el
-  estado de navegación).
-- `components/`: `ReportIncidentForm.tsx`, `CategorySelect.tsx` (muestra el SLA),
-  `DescriptionField.tsx` (contador), `LocationSelect.tsx`, `OccurredAtField.tsx` (por defecto
-  ahora), `GeolocationField.tsx` (aviso discreto si se deniega), `PhotoPicker.tsx`,
-  `PhotoPreviewGrid.tsx`.
-- `src/shared/ui/`: `TextAreaField.tsx`, `DateTimeField.tsx`, `FieldHint.tsx`.
-- `pages/ReportIncidentPage.tsx`.
+- `hooks/use-report-incident-form.ts` (estado, validación al enviar y luego en vivo),
+  `report-incident-validation.ts` (reglas puras con los límites de `shared`),
+  `use-geolocation.ts` (`idle`, `locating`, `granted`, `denied`, `unavailable`; coordenadas a 7
+  decimales), `use-photo-selection.ts` y `photo-selection-rules.ts` (tipo, tamaño y cantidad
+  según `uploadLimits` del catálogo; previsualización con object URLs liberadas al quitar y al
+  desmontar), `use-create-incident.ts` (arma el `FormData` en `api/incidents.api.ts` y navega al
+  detalle con el folio en el estado de navegación), `use-incident.ts`, `use-created-folio.ts`.
+- `components/report/`: `ReportIncidentForm`, `IncidentWhatSection`, `IncidentWhereWhenSection`,
+  `CategorySelect` (muestra el SLA), `GeolocationField` y `GeolocationResult` (aviso discreto si
+  se deniega), `PhotoPicker`, `PhotoDropzone`, `PhotoPreviewGrid`, `ReportFormActions`.
+- Los componentes de incidentes se ordenan por vista: `components/inbox/`, `components/report/`
+  y `components/detail/`; badge de estado y semáforo quedan en la raíz.
+- `incident.types.ts` (`Coordinates`, para que los componentes no importen la capa `api`),
+  `report-incident.copy.ts`, `incident-detail.copy.ts`.
+- `src/shared/ui/`: `TextAreaField` (contador), `FormSection` (sección numerada);
+  `src/shared/lib/datetime-local.ts`.
+- `pages/ReportIncidentPage.tsx` y una primera versión de `pages/IncidentDetailPage.tsx` con el
+  aviso del folio asignado (`CreatedFolioNotice`), que el commit 23 completa.
 
-**Verificación:** se crea un incidente y se ve el folio (CA-03); `occurredAt` inválida muestra
-el mensaje de la API; denegar ubicación no bloquea el envío (CA-15).
+**Verificación:** con Chrome headless, a 390 px y 1440 px: el envío vacío marca los campos; la
+categoría muestra su SLA; la ubicación concedida muestra coordenadas; un archivo que no es imagen
+se rechaza; las fotos se previsualizan y se quitan; el envío navega al detalle con el folio en un
+aviso destacado (CA-03); con la ubicación denegada se informa discretamente y el reporte se crea
+igual (CA-15).
 
 ---
 

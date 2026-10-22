@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 
-import { InboxResults } from '@/features/incidents/components/InboxResults';
-import { IncidentFiltersBar } from '@/features/incidents/components/IncidentFiltersBar';
+import { InboxResults } from '@/features/incidents/components/inbox/InboxResults';
+import { IncidentFiltersBar } from '@/features/incidents/components/inbox/IncidentFiltersBar';
 import { useIncidentFilters } from '@/features/incidents/hooks/use-incident-filters';
 import { incidentsCopy } from '@/features/incidents/incidents.copy';
 import { ROUTE_PATHS } from '@/shared/routing/route-paths';

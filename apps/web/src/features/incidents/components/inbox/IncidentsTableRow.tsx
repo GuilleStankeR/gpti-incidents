@@ -3,11 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import type { IncidentSummary } from '@incidents/shared';
 
+import { IncidentStatusBadge } from '@/features/incidents/components/IncidentStatusBadge';
+import { SlaIndicator } from '@/features/incidents/components/SlaIndicator';
 import { incidentsCopy } from '@/features/incidents/incidents.copy';
 import { buildIncidentDetailPath } from '@/shared/routing/route-paths';
-
-import { IncidentStatusBadge } from './IncidentStatusBadge';
-import { SlaIndicator } from './SlaIndicator';
 
 interface IncidentsTableRowProps {
   readonly incident: IncidentSummary;

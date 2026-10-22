@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 
 import type { IncidentSummary } from '@incidents/shared';
 
+import { IncidentStatusBadge } from '@/features/incidents/components/IncidentStatusBadge';
+import { SlaIndicator } from '@/features/incidents/components/SlaIndicator';
 import { incidentsCopy } from '@/features/incidents/incidents.copy';
 import { buildIncidentDetailPath } from '@/shared/routing/route-paths';
 import { Icon } from '@/shared/ui/icons/Icon';
-
-import { IncidentStatusBadge } from './IncidentStatusBadge';
-import { SlaIndicator } from './SlaIndicator';
 
 interface IncidentCardProps {
   readonly incident: IncidentSummary;

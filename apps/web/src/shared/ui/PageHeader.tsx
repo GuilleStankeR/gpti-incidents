@@ -13,7 +13,9 @@ export function PageHeader({ title, description, actions }: PageHeaderProps): Re
         <h1 className="text-xl font-semibold text-slate-900 md:text-2xl">{title}</h1>
         {description === undefined ? null : <p className="text-sm text-slate-600">{description}</p>}
       </div>
-      {actions === undefined ? null : <div className="flex flex-wrap gap-2">{actions}</div>}
+      {actions === undefined ? null : (
+        <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>
+      )}
     </header>
   );
 }

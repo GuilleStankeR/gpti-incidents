@@ -41,4 +41,6 @@ export const commonCopy = {
     backHome: 'Volver al inicio',
   },
   emptyValue: '—',
+  characterCount: (count: number, max: number): string => `${String(count)}/${String(max)}`,
+  fileSize: (value: string, unit: string): string => `${value} ${unit}`,
 } as const;
