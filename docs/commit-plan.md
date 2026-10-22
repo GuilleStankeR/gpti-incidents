@@ -18,7 +18,7 @@ verificación manual propia.
 | 02 | Base | `chore(root): scaffold npm workspaces monorepo` | [x] |
 | 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [x] |
 | 04 | Base | `feat(shared): add shared domain package` | [x] |
-| 05 | Base | `feat(api): bootstrap nestjs application` | [ ] |
+| 05 | Base | `feat(api): bootstrap nestjs application` | [x] |
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [ ] |
 | 07 | Base | `feat(web): bootstrap react application` | [ ] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [ ] |
@@ -222,28 +222,39 @@ paquete carga desde Node con `require` y con `import`; lint y typecheck en verde
 - `package.json`: scripts `dev` (`dotenv -e ../../.env -- nest start --watch`), `build`,
   `start`, `typecheck`. El `.env` raíz lo cargan los scripts; la app solo valida.
 - `nest-cli.json`, `tsconfig.json` (CommonJS, `experimentalDecorators`,
-  `emitDecoratorMetadata`, alias `@/*`), `tsconfig.build.json`.
-- `src/main.ts`: prefijo global `/api`, `ValidationPipe` global (`whitelist`, `transform`,
-  `exceptionFactory` que produce `VALIDATION_FAILED`), filtro global, `enableShutdownHooks`,
+  `emitDecoratorMetadata`, alias `@/*`, que `nest build` reescribe a rutas relativas),
+  `tsconfig.build.json`.
+- `src/main.ts`: `NestFactory.create` con `abortOnError: false` (un error de arranque termina el
+  proceso con su mensaje en vez de abortar), prefijo global `/api`, `enableShutdownHooks`,
   puerto desde `AppConfig`.
-- `src/app.module.ts`.
+- `src/app.module.ts`: registra el filtro (`APP_FILTER`) y el `ValidationPipe` (`APP_PIPE`) como
+  proveedores globales.
 - `src/config/environment.ts`: clase con decoradores de `class-validator` por variable.
 - `src/config/validate-environment.ts`: `plainToInstance` + `validateSync`; ante faltantes lanza
   un error que lista cada variable inválida, y la app no arranca.
-- `src/config/app-config.ts`: servicio con getters tipados (`apiPort`, `jwt`, `storageDir`
-  resuelto a ruta absoluta, `maxFileSizeBytes`, `maxFilesPerUpload`, `nominatim`, `timeZone`).
+- `src/config/app-config.ts` y `app-config.types.ts`: servicio con getters tipados (`apiPort`,
+  `jwt`, `storageDirectory` resuelto a ruta absoluta, `uploads`, `nominatim`, `timeZone`).
 - `src/config/app-config.module.ts`: módulo global.
 - `src/common/errors/domain-error.ts`: `DomainError extends Error` con `code: ErrorCode` y
-  mensaje de detalle opcional para validaciones.
-- `src/common/errors/error-http-status.ts`: `Record<ErrorCode, HttpStatus>`.
+  `detail` opcional (mensaje de validación de un DTO).
+- `src/common/errors/error-http-status.ts`: `Record<ErrorCode, HttpStatus>` y el mapa de estados
+  HTTP del framework a `ErrorCode` (400, 401, 403, 404 y 413 de Multer).
 - `src/common/errors/error-messages.copy.ts`: `Record<ErrorCode, string>` en español.
-- `src/common/errors/validation-messages.copy.ts`: mensajes de validación de DTO en español.
-- `src/common/filters/api-exception.filter.ts`: `@Catch()` que traduce `DomainError`, rutas
-  inexistentes (`RESOURCE_NOT_FOUND`), `PayloadTooLargeException` de Multer (`INVALID_FILE`) y
-  cualquier otro error (`INTERNAL_ERROR` con log del stack) a `{ code, message, status }`.
+- `src/common/errors/error-response.ts`: `buildErrorResponse(exception)` →
+  `{ code, message, status }`.
+- `src/common/filters/api-exception.filter.ts`: `@Catch()` global que responde con
+  `buildErrorResponse` y registra el stack de los `INTERNAL_ERROR`.
+- `src/common/pipes/validation.pipe.ts`: `ValidationPipe` (`whitelist`, `transform`,
+  `stopAtFirstError`) cuyo `exceptionFactory` lanza `VALIDATION_FAILED` con el primer mensaje
+  de validación. Los mensajes en español de cada DTO viven en `validation-messages.copy.ts`, que
+  nace con el primer DTO (commit 08).
+- Corrección del lint del commit 03: `import-x/no-relative-parent-imports` también rechazaba los
+  imports con alias `@/`; se reemplaza por `no-restricted-imports` con un patrón que solo
+  rechaza `../`.
 
-**Verificación:** `npm run dev -w @incidents/api` arranca; sin `JWT_SECRET` falla al arrancar con
-un mensaje que nombra la variable; `GET /api/inexistente` responde 404 con el formato único.
+**Verificación:** la API arranca; sin `JWT_SECRET` o con `API_PORT` inválido falla al arrancar con
+un mensaje que nombra cada variable; `GET /api/inexistente` responde 404 y un JSON mal formado
+responde 400, ambos con el formato único.
 
 ---
 

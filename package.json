@@ -40,7 +40,9 @@
     "typescript-eslint": "8.72.0"
   },
   "allowScripts": {
-    "unrs-resolver": false
+    "unrs-resolver": false,
+    "fsevents": false,
+    "@nestjs/core": false
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [

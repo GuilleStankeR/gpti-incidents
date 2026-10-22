@@ -4,6 +4,11 @@ import { createNodeResolver, importX } from 'eslint-plugin-import-x';
 
 import { APP_SOURCE_FILES, DEV_DEPENDENCY_FILES, SOURCE_FILES } from '../constants.mjs';
 
+const PARENT_RELATIVE_IMPORT = {
+  regex: String.raw`^\.\./`,
+  message: 'Import through the @/ alias instead of a parent relative path.',
+};
+
 const IMPORT_ORDER = {
   groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
   pathGroups: [
@@ -24,6 +29,7 @@ export const importsConfig = defineConfig(
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
           project: ['packages/*/tsconfig.json', 'apps/*/tsconfig.json'],
+          noWarnOnMultipleProjects: true,
         }),
         createNodeResolver(),
       ],
@@ -48,7 +54,7 @@ export const importsConfig = defineConfig(
   {
     files: APP_SOURCE_FILES,
     rules: {
-      'import-x/no-relative-parent-imports': 'error',
+      'no-restricted-imports': ['error', { patterns: [PARENT_RELATIVE_IMPORT] }],
     },
   },
 );
