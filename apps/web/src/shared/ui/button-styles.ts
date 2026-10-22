@@ -3,7 +3,7 @@ import { classNames } from '@/shared/lib/class-names';
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
 const BASE_CLASSES =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 
 const VARIANT_CLASSES: Readonly<Record<ButtonVariant, string>> = {
   primary: 'bg-accent text-white hover:bg-accent-hover focus-visible:outline-accent-ring',

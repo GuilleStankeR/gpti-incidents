@@ -5,6 +5,6 @@
   "printWidth": 100,
   "endOfLine": "lf",
   "plugins": ["prettier-plugin-tailwindcss"],
-  "tailwindConfig": "./apps/web/tailwind.config.ts",
-  "tailwindFunctions": ["classNames"]
+  "tailwindFunctions": ["classNames"],
+  "tailwindStylesheet": "./apps/web/src/styles/index.css"
 }

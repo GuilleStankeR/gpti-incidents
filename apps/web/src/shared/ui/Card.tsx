@@ -6,7 +6,7 @@ interface CardProps {
 
 export function Card({ children }: CardProps): ReactElement {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs md:p-6">
       {children}
     </section>
   );

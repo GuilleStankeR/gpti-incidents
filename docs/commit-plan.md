@@ -21,6 +21,7 @@ verificación manual propia.
 | 05 | Base | `feat(api): bootstrap nestjs application` | [x] |
 | 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [x] |
 | 07 | Base | `feat(web): bootstrap react application` | [x] |
+| 07b | Base | `chore(deps): upgrade stack to clear npm audit` | [x] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [ ] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [ ] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [ ] |
@@ -51,14 +52,14 @@ de datos y la web arrancando, sin funcionalidades de negocio.
 |---|---|---|
 | Node.js | 22 LTS (`.nvmrc`), `engines >= 22` | La especificación pide 20 o superior; Node 20 ya no tiene soporte y parte del tooling exige 22 |
 | TypeScript | 5.9.x | typescript-eslint 8 no soporta TypeScript 6+ |
-| NestJS | 10.4.x (`@nestjs/cli` 10.4.x) | Especificación §4 |
+| NestJS | 11.2.x (`@nestjs/cli` 11.0.x, `@nestjs/config` 4.x) | NestJS 10 arrastra vulnerabilidades sin parche (commit 07b) |
 | Prisma / `@prisma/client` | 5.22.x | Especificación §4 |
 | PostgreSQL | imagen `postgres:16-alpine` | Especificación §4 |
 | React / React DOM | 18.3.x | Especificación §4 |
 | Vite / `@vitejs/plugin-react` | 7.3.x / 5.x | Última combinación estable compatible con React 18 |
-| react-router-dom | 6.30.x | Especificación §4 |
+| react-router-dom | 7.18.x | La 6.x tiene vulnerabilidades corregidas solo en 7.x (commit 07b) |
 | @tanstack/react-query | 5.x | Especificación §4 |
-| Tailwind CSS | 3.4.x con PostCSS y autoprefixer | Especificación §4 |
+| Tailwind CSS | 4.3.x con `@tailwindcss/vite` | Tailwind 3 depende de `braces`, vulnerable y sin versión corregida (commit 07b) |
 | ESLint | 9.39.x | Flat config; plugins aún no soportan todos ESLint 10 |
 | typescript-eslint | 8.x | Lint con información de tipos |
 | eslint-plugin-unicorn | 62.x | Última versión compatible con ESLint 9 |
@@ -344,11 +345,31 @@ el build ESM de `shared`; `npm run build` genera `dist` sin advertencias; un lit
 
 ---
 
+## 07b · `chore(deps): upgrade stack to clear npm audit`
+
+**Objetivo:** `npm audit` en 0 vulnerabilidades, por instrucción del usuario.
+
+**Cambios:**
+- API: `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` 11.2.x (Express 5,
+  `multer` 2.4), `@nestjs/cli` 11.0.x, `@nestjs/config` 4.x, `@types/express` 5.
+- Web: `react-router-dom` 7.18.x (modo librería, misma API declarativa).
+- Web: Tailwind CSS 4 con `@tailwindcss/vite`. Se eliminan `tailwind.config.ts`,
+  `postcss.config.mjs`, `postcss` y `autoprefixer`; el tema pasa a `@theme` en
+  `src/styles/index.css`; se ajustan utilidades renombradas (`outline-2`, `shadow-xs`).
+  `prettier-plugin-tailwindcss` usa `tailwindStylesheet`.
+- `npm audit fix` para el resto de dependencias transitivas sin cambios mayores.
+- `CLAUDE.md` registra las desviaciones de stack y la regla de 0 vulnerabilidades.
+
+**Verificación:** `npm audit` → 0 vulnerabilidades; lint, typecheck y build en verde; API y web
+levantan con `npm run dev`; el CSS generado incluye los tokens `accent`.
+
+---
+
 ## 08 · `feat(api): add jwt authentication and role guards`
 
 **Objetivo:** login y protección de toda la API (A1).
 
-**Dependencias:** `@nestjs/jwt`.
+**Dependencias:** `@nestjs/jwt` 11.
 
 **Archivos:**
 - `src/modules/auth/`: `auth.controller.ts` (`POST /auth/login`, `@Public()`),

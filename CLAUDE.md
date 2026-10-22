@@ -25,9 +25,13 @@ Este archivo prevalece sobre `ESPECIFICACION-MVP.md` donde difieren:
 | Pruebas | Jest, unitarias y e2e, script `probar` | No se escriben pruebas. No hay script de pruebas ni dependencias de testing |
 | Comentarios | Permitidos para explicar el porqué | Prohibidos sin excepción (§7.1) |
 | Estructura de carpetas | §5 de la especificación | §6 de este archivo |
+| Backend | NestJS 10 | NestJS 11 (Express 5, `@nestjs/config` 4): NestJS 10 arrastra vulnerabilidades sin parche |
+| Routing web | `react-router-dom` 6 | `react-router-dom` 7, en modo librería (misma API declarativa) |
+| Estilos | Tailwind CSS 3.4 con PostCSS; prohibido Tailwind 4 | Tailwind CSS 4 con `@tailwindcss/vite`: Tailwind 3 depende de `braces`, vulnerable y sin versión corregida |
 
-Todo lo demás de la especificación sigue vigente: stack y versiones (§4), reglas de negocio,
-matriz de permisos, contratos (traducidos según el glosario) y prohibiciones (§13).
+Las tres actualizaciones de stack las autorizó el usuario para dejar `npm audit` sin
+vulnerabilidades. Todo lo demás de la especificación sigue vigente: resto del stack (§4), reglas de
+negocio, matriz de permisos, contratos (traducidos según el glosario) y prohibiciones (§13).
 
 ## 3. Flujo de trabajo
 
@@ -44,6 +48,8 @@ matriz de permisos, contratos (traducidos según el glosario) y prohibiciones (�
 6. Nada fuera del alcance (§2.2 de la especificación), aunque parezca una mejora obvia.
 7. Dependencias: solo las del stack de la especificación y las de tooling listadas en el plan.
    Cualquier otra requiere aprobación explícita. Versiones exactas (`save-exact`).
+8. `npm audit` debe reportar 0 vulnerabilidades. Agregar o actualizar una dependencia no puede
+   romper esa condición.
 
 ## 4. Idioma
 
@@ -280,7 +286,7 @@ Una feature no importa de otra feature (salvo `auth`).
 - `any` explícito o implícito, `as unknown as`, aserción non-null `!`.
 - `enum` de TypeScript: se usan objetos `as const` con un tipo derivado del mismo nombre.
 - `export default`, salvo archivos de configuración que lo exigen (`vite.config.ts`,
-  `tailwind.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`).
+  `eslint.config.mjs`).
 - Barrels (`index.ts` que reexportan), salvo `packages/shared/src/index.ts`.
 - `console.*`: la API usa `Logger` de Nest; la web no loguea.
 - Valores configurables incrustados (URLs, puertos, secretos, límites, zona horaria): van en la
@@ -365,11 +371,12 @@ Una feature no importa de otra feature (salvo `auth`).
 
 ### 9.3 Estilos y UX
 
-- Solo Tailwind CSS 3.4. Sin `style={{}}`, sin CSS por componente, sin librerías de componentes.
+- Solo Tailwind CSS 4. Sin `style={{}}`, sin CSS por componente, sin librerías de componentes.
+  El tema (tokens de color) vive en `@theme` dentro de `src/styles/index.css`.
 - Mobile-first: se diseña para 390 px y se amplía con `md:` (768 px). Objetivos táctiles de al
   menos 44 px. Sin desborde horizontal.
-- Paleta neutra con acento azul oscuro (`accent` en `tailwind.config.ts`). Los colores de estado y
-  de semáforo viven en un único mapa por concepto.
+- Paleta neutra con acento azul oscuro (`accent`, `accent-hover`, `accent-ring`, `accent-muted`).
+  Los colores de estado y de semáforo viven en un único mapa por concepto.
 - Accesibilidad: `label` asociado a cada campo, `button` para acciones y `Link` para navegación,
   `alt` en imágenes, foco visible, modales con `role="dialog"` y cierre con Escape.
 - Sin animaciones decorativas.

@@ -28,12 +28,7 @@ export const WEB_SESSION_STORAGE_FILES = ['apps/web/src/features/auth/session-st
 export const APP_SOURCE_FILES = ['apps/*/src/**/*.ts', 'apps/*/src/**/*.tsx'];
 export const SHARED_PACKAGE_FILES = ['packages/shared/**/*.ts'];
 
-export const CONFIG_FILES = [
-  'eslint.config.mjs',
-  '**/vite.config.ts',
-  '**/tailwind.config.ts',
-  '**/postcss.config.mjs',
-];
+export const CONFIG_FILES = ['eslint.config.mjs', '**/vite.config.ts'];
 
 export const DEV_DEPENDENCY_FILES = [
   ...CONFIG_FILES,
