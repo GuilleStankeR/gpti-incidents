@@ -436,10 +436,11 @@ Sufijos de la API: `.controller`, `.service`, `.repository`, `.mapper`, `.module
 
 | Comando | Qué hace |
 |---|---|
-| `npm run setup` | Crea `.env`, instala, compila `shared`, levanta PostgreSQL, migra y carga el seed |
+| `npm start` | Un solo comando desde cero: `setup` + `dev` |
+| `npm run setup` | Crea `.env`, verifica Docker, instala, compila `shared`, levanta PostgreSQL, migra y carga el seed |
 | `npm run dev` | Compila `shared` y levanta API y web en paralelo |
 | `npm run build` | Compila todos los workspaces |
 | `npm run typecheck` | `tsc --noEmit` en todos los workspaces |
 | `npm run lint` / `npm run lint:fix` | ESLint sobre todo el monorepo |
 | `npm run format` / `npm run format:check` | Prettier sobre todo el monorepo |
-| `npm run db:reset -w @incidents/api` | Recrea la base, aplica migraciones y carga el seed |
+| `npm run db:reset` | Vacía el almacenamiento, recrea la base, aplica migraciones y carga el seed |

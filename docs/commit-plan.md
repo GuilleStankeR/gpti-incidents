@@ -33,7 +33,7 @@ verificación manual propia.
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [x] |
 | 17 | Backend | `feat(api): add case file pdf export` | [x] |
 | 18 | Backend | `feat(api): add metrics endpoint` | [x] |
-| 19 | Backend | `feat(db): add historical incidents seed` | [ ] |
+| 19 | Backend | `feat(db): add historical incidents seed` | [x] |
 | 20 | Frontend | `feat(web): add authentication and app layout` | [ ] |
 | 21 | Frontend | `feat(web): add incidents inbox` | [ ] |
 | 22 | Frontend | `feat(web): add report incident form` | [ ] |
@@ -704,22 +704,40 @@ los tres indicadores; conserje → `FORBIDDEN_ROLE`. Con los datos del commit 19
 **Objetivo:** 32 incidentes realistas que hacen demostrable el sistema (§9).
 
 **Archivos (`apps/api/prisma/seed/`):**
-- `data/incidents.data.ts`: 32 definiciones con categoría, ubicación, descripción realista,
-  estado final, antigüedad, duraciones, responsable, observaciones por transición y si cierra
-  dentro del SLA. Composición: 21 `CLOSED` (17 dentro y 4 fuera de SLA), 2 `REJECTED` con motivo,
-  9 abiertos repartidos en los cuatro estados no terminales, 2 de ellos vencidos. Predominan
-  `WATER_LEAK` y `COMMON_AREAS`.
-- `generators/audit-trail.generator.ts`: bitácora coherente con la ruta de estados, marcas de
-  tiempo crecientes y actor con el rol que podía ejecutar cada transición.
+- `data/incidents/`: 32 definiciones repartidas en `closed-incidents-1..4.data.ts`,
+  `rejected-incidents.data.ts` y `open-incidents.data.ts`, unidas en
+  `historical-incidents.data.ts`; tipos en `seed-incident.types.ts`. Cada una declara
+  categoría, ubicación, reportante, antigüedad, descripción realista, fotos y desenlace (horas
+  de resolución y texto de cierre, motivo de rechazo o estado abierto con responsable).
+  Composición: 21 `CLOSED` (17 dentro y 4 fuera de SLA), 2 `REJECTED` con motivo, 9 abiertos
+  (2 `REPORTED`, 2 `UNDER_REVIEW`, 2 `ASSIGNED`, 3 `IN_PROGRESS`), 2 de ellos vencidos y 2 por
+  vencer. Predominan `WATER_LEAK` (10) y `COMMON_AREAS` (8).
+- `data/seed-texts.data.ts`, `data/demo-emails.data.ts`; `data/condominium.data.ts` suma la
+  ubicación de demostración (coordenadas y dirección para los incidentes con mapa).
+- `generators/incident-timeline.generator.ts`, `timeline-steps.ts` y `timeline.constants.ts`:
+  bitácora coherente (pasos en fracciones del tiempo de resolución, marcas crecientes, actor con
+  el rol que podía ejecutar cada transición, evidencia previa al cierre con su entrada).
 - `generators/evidence-image.generator.ts`: JPEG 800×600 de color plano con el folio escrito
   (SVG renderizado con `sharp`).
-- `seeders/incidents.seeder.ts`: si el condominio ya tiene incidentes no hace nada
-  (idempotencia sin borrar, que los triggers impedirían); reutiliza `formatFolio` y
-  `calculateDueAt` del dominio, el mismo `UPSERT` de folio, el mismo esquema de rutas de
-  almacenamiento y el mismo SHA-256 que la API.
+- `seeders/incidents.seeder.ts`, `incident-writer.ts`, `evidence-writer.ts` y
+  `seed-context.ts`: si el condominio ya tiene incidentes no hace nada (idempotencia sin borrar,
+  que los triggers impedirían); reutiliza `formatFolio`, `calculateDueAt`, el mismo `UPSERT` de
+  folio, el mismo almacenamiento inmutable y el mismo SHA-256 que la API. Los folios siguen el
+  orden cronológico.
+- `src/modules/storage/local-disk-files.ts`: la lógica de disco del adaptador pasa a funciones
+  reutilizables por el seed.
+- `src/config/environment.ts`: `@Type(() => Number)` explícito en las variables numéricas (el
+  seed corre con `tsx`, que no emite metadatos de decoradores).
+- Scripts: `scripts/clear-storage.mjs` y `db:reset` (vacía el almacenamiento y recrea la base con
+  el seed); `scripts/ensure-docker.mjs`; `npm start` en la raíz (`setup` + `dev`): un solo
+  comando levanta todo desde cero con datos.
 
-**Verificación:** `npm run db:reset -w @incidents/api` deja 32 incidentes; la bandeja tiene al
-menos un vencido (CA-19); métricas según CA-20; el seed corre dos veces sin duplicar.
+**Verificación:** `npm run db:reset` deja 32 incidentes con la composición indicada; bitácoras con
+marcas crecientes, cadena de estados coherente y estado final igual al de la última entrada;
+la bandeja muestra dos vencidos (CA-19); métricas con 81 % dentro de SLA y 100 % con evidencia
+(CA-20); el residente ve solo sus 8 incidentes (CA-02); el seed corre dos veces sin duplicar;
+el expediente de un incidente del seed muestra sus imágenes; un clon limpio con `npm start` deja
+todo operativo.
 
 ---
 

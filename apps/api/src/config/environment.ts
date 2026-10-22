@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
@@ -29,6 +30,7 @@ export class Environment {
   @Matches(DURATION_PATTERN)
   readonly JWT_EXPIRES_IN!: string;
 
+  @Type(() => Number)
   @IsInt()
   @Min(MIN_TCP_PORT)
   @Max(MAX_TCP_PORT)
@@ -38,10 +40,12 @@ export class Environment {
   @IsNotEmpty()
   readonly STORAGE_DIR!: string;
 
+  @Type(() => Number)
   @IsInt()
   @IsPositive()
   readonly MAX_FILE_SIZE_MB!: number;
 
+  @Type(() => Number)
   @IsInt()
   @IsPositive()
   readonly MAX_FILES_PER_UPLOAD!: number;
@@ -53,6 +57,7 @@ export class Environment {
   @IsNotEmpty()
   readonly NOMINATIM_USER_AGENT!: string;
 
+  @Type(() => Number)
   @IsInt()
   @IsPositive()
   readonly NOMINATIM_TIMEOUT_MS!: number;
