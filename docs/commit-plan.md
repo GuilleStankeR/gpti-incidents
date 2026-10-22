@@ -38,7 +38,7 @@ verificación manual propia.
 | 21 | Frontend | `feat(web): add incidents inbox` | [x] |
 | 22 | Frontend | `feat(web): add report incident form` | [x] |
 | 23 | Frontend | `feat(web): add incident detail and actions` | [x] |
-| 24 | Frontend | `feat(web): add metrics dashboard` | [ ] |
+| 24 | Frontend | `feat(web): add metrics dashboard` | [x] |
 | 25 | Cierre | `docs: add readme and acceptance checklist` | [ ] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
@@ -881,15 +881,18 @@ responsable" (CA-10); mapa con dirección (CA-14); sin desborde a 390 px.
 
 **Archivos (`src/features/metrics/`):**
 - `api/metrics.api.ts`, `api/metrics.keys.ts`.
-- `hooks/use-metrics.ts`, `use-metrics-range.ts` (rango en la query string).
-- `components/`: `MetricsSummary.tsx` (cuatro tarjetas), `MetricCard.tsx` (guion cuando el
-  valor es `null`), `HorizontalBarChart.tsx` (barras en HTML y CSS), `StatusBreakdown.tsx`,
-  `CategoryBreakdown.tsx`.
-- `DateRangeFilter.tsx` pasa de `incidents` a `shared/ui` para reutilizarse.
-- `pages/MetricsPage.tsx` (ruta protegida solo para `ADMIN`) y `metrics.copy.ts`.
+- `hooks/use-metrics.ts` (con `placeholderData` al cambiar el rango), `use-metrics-range.ts`
+  (rango en la query string; sin rango, la API usa los últimos 90 días).
+- `components/`: `MetricsDashboard`, `MetricsSummary` (cuatro tarjetas; 2×2 en móvil),
+  `MetricCard`, `HorizontalBarChart` (barras en SVG: sin `style={{}}` ni librería de gráficos),
+  `StatusBreakdown` (colores de estado), `CategoryBreakdown`, `MetricsRangeFilter` (reutiliza
+  `DateRangeFields` de `shared/ui`); aviso de abiertos vencidos y período analizado.
+- `metrics-format.ts` (guion cuando el valor es `null`), `metrics.copy.ts`,
+  `pages/MetricsPage.tsx`; ruta protegida con `VIEW_METRICS`.
 
-**Verificación:** evidencia al cierre en 100 % y dentro de SLA distinto de 100 % (CA-20); un
-conserje que entra a `/metrics` vuelve a la bandeja.
+**Verificación:** con Chrome headless: evidencia al cierre en 100 % y dentro de SLA distinto de
+100 % (CA-20); el rango de fechas vive en la URL; un conserje que entra a `/metrics` vuelve a la
+bandeja; capturas a 1440 px y 390 px sin desborde.
 
 ---
 
