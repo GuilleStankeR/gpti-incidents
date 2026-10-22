@@ -6,6 +6,7 @@ import { createValidationPipe } from '@/common/pipes/validation.pipe';
 import { AppConfigModule } from '@/config/app-config.module';
 import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { CaseFilesModule } from '@/modules/case-files/case-files.module';
 import { CatalogsModule } from '@/modules/catalogs/catalogs.module';
 import { IncidentsModule } from '@/modules/incidents/incidents.module';
 import { UsersModule } from '@/modules/users/users.module';
@@ -18,6 +19,7 @@ import { UsersModule } from '@/modules/users/users.module';
     CatalogsModule,
     UsersModule,
     IncidentsModule,
+    CaseFilesModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: ApiExceptionFilter },

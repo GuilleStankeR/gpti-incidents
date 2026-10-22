@@ -31,7 +31,7 @@ verificación manual propia.
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [x] |
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [x] |
 | 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [x] |
-| 17 | Backend | `feat(api): add case file pdf export` | [ ] |
+| 17 | Backend | `feat(api): add case file pdf export` | [x] |
 | 18 | Backend | `feat(api): add metrics endpoint` | [ ] |
 | 19 | Backend | `feat(db): add historical incidents seed` | [ ] |
 | 20 | Frontend | `feat(web): add authentication and app layout` | [ ] |
@@ -636,30 +636,42 @@ residente no descarga evidencia ajena ni adjunta a incidentes ajenos (404); adju
 
 **Objetivo:** A8, el entregable probatorio (§7 de la especificación).
 
-**Dependencias:** `pdfkit`, `sharp` (convierte WebP a PNG, formato que pdfkit no soporta, y genera
-las imágenes del seed en el commit 19). Dev: `@types/pdfkit`.
+**Dependencias:** `pdfkit`, `sharp` (normaliza las imágenes para el PDF y genera las del seed en
+el commit 19). Dev: `@types/pdfkit`.
 
 **Archivos (`src/modules/case-files/`):**
-- `case-files.controller.ts`: `GET /incidents/:id/case-file.pdf` con
-  `@Roles(CONCIERGE, ADMIN)`; `Content-Type: application/pdf` y
-  `Content-Disposition: attachment; filename="expediente-{folio}.pdf"`.
-- `case-files.service.ts`: carga el expediente en alcance, lee archivos desde `FileStorage`,
-  normaliza imágenes y delega en el documento.
+- `case-files.controller.ts`: `GET /incidents/:incidentId/case-file.pdf` con
+  `@RequireCapability(DOWNLOAD_CASE_FILE)`; `Content-Type: application/pdf`,
+  `Content-Disposition: attachment; filename="expediente-{folio}.pdf"` y
+  `Cache-Control: private, no-store`.
+- `case-files.service.ts`: carga el expediente en alcance, lee los archivos desde
+  `EvidenceFilesService`, normaliza cada imagen (si una falla, el PDF indica que la vista previa no
+  está disponible) y registra la emisión en el log.
 - `case-files.repository.ts`: incidente con condominio, categoría, personas, evidencia y bitácora
-  ascendente.
+  ascendentes; nombre del emisor.
+- `case-file-view.mapper.ts`: arma un modelo de presentación con todos los textos ya formateados
+  (fechas `dd-MM-yyyy HH:mm` en `TIME_ZONE`, etiquetas de estado y perfil, tamaños), de modo que
+  las secciones solo dibujan.
 - `pdf/case-file-document.ts`: compone el documento (carta, márgenes 50, Helvetica,
-  `bufferPages`).
-- `pdf/sections/`: `header.section.ts`, `identification.section.ts`, `parties.section.ts`,
-  `description.section.ts`, `evidence.section.ts` (imagen máx. 240×240 y ficha en cuerpo 8 con
-  hash completo), `audit-trail.section.ts`, `footer.section.ts` (emisión, folio, "Página N de M" y
-  leyenda en todas las hojas).
-- `pdf/pdf-primitives.ts`: título de sección, par etiqueta-valor, divisor, salto de página
-  controlado.
-- `pdf/case-file-layout.constants.ts` y `case-files.copy.ts`.
-- Fechas con `formatDateTime` de `shared` y `TIME_ZONE` de la configuración.
+  `bufferPages`) y devuelve un `Buffer`.
+- `pdf/pdf-writer.ts`: primitivas sobre pdfkit (título de sección que no queda huérfano, par
+  etiqueta-valor, párrafo, líneas pequeñas, imagen ajustada a 240×240, flecha vectorial entre
+  estados porque Helvetica no tiene el carácter `→`, divisor, salto de página y pie en todas las
+  hojas).
+- `pdf/sections/`: `header`, `fields` (identificación y partes), `description`, `evidence`
+  (imagen y ficha en cuerpo 8 con hash completo), `audit-trail`, `footer` ("Expediente emitido el
+  … por … · folio · Página N de M" y leyenda).
+- `pdf/pdf-image.ts`: con `sharp` aplica la orientación EXIF, limita a 960 px y convierte a JPEG
+  (pdfkit no soporta WebP ni PNG entrelazado); devuelve las dimensiones para calcular el ajuste.
+  El hash impreso es siempre el del archivo original.
+- `pdf/case-file-layout.constants.ts`, `pdf/case-file-view.ts` y `case-files.copy.ts`.
+- `src/common/files/image-decoding.ts`: la carga de fotos exige además que la imagen sea
+  decodificable (firma válida con contenido corrupto → `INVALID_FILE`).
 
-**Verificación:** el PDF descargado tiene las cinco secciones, imágenes, hashes completos y
-numeración (CA-17); un residente recibe `FORBIDDEN_ROLE`.
+**Verificación:** el PDF descargado (incidente con JPEG, PNG y WebP, flujo completo hasta
+`CLOSED`) tiene las cinco secciones, imágenes, hashes completos, bitácora con flechas y
+numeración en cada hoja (CA-17), revisado renderizando cada página; un residente recibe
+`FORBIDDEN_ROLE`; un JPEG con firma válida pero contenido corrupto se rechaza al cargar.
 
 ---
 
