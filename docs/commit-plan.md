@@ -23,7 +23,7 @@ verificación manual propia.
 | 07 | Base | `feat(web): bootstrap react application` | [x] |
 | 07b | Base | `chore(deps): upgrade stack to clear npm audit` | [x] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [x] |
-| 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [ ] |
+| 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [x] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [ ] |
 | 11 | Backend | `feat(api): add file storage and photo validation` | [ ] |
 | 12 | Backend | `feat(api): add incident creation and detail` | [ ] |
@@ -405,11 +405,17 @@ español. El rechazo sin token se verifica con el primer endpoint protegido (com
   `locations.catalog.ts` con la lista fija de §3.7; `uploadLimits` (`maxFiles`,
   `maxFileSizeBytes`, `acceptedMimeTypes`) sale de `AppConfig`, así la web no duplica límites.
   `categories.repository.ts`, `catalogs.service.ts`, `catalogs.mapper.ts`.
-- `src/modules/users/`: `GET /users/assignable` con `@Roles(ADMIN)`: usuarios del condominio
-  con rol en `ASSIGNABLE_ROLES`. `users.service.ts`, `users.mapper.ts`, `users.controller.ts`.
+- Las categorías se ordenan por SLA y luego por nombre. `CategoriesRepository` se exporta para
+  validar la categoría al crear incidentes.
+- `src/modules/users/`: `GET /users/assignable` con
+  `@RequireCapability(MANAGE_ASSIGNMENTS)`: usuarios del condominio con rol en
+  `ASSIGNABLE_ROLES`, ordenados por nombre. `users.service.ts`, `users.mapper.ts`
+  (`toUserSummary`, `toUserWithRole`), `users.controller.ts`; `users.repository.ts` suma
+  `findAssignable` y `findAssignableById` (este último lo usa el commit 14).
 
-**Verificación:** catálogos con 6 categorías y 11 ubicaciones; asignables como admin devuelve
-tres usuarios; como conserje → 403 `FORBIDDEN_ROLE`.
+**Verificación:** catálogos con 6 categorías, 11 ubicaciones y límites de carga; asignables como
+admin devuelve tres usuarios; como conserje → 403 `FORBIDDEN_ROLE`; sin token o con token
+inválido → 401 `UNAUTHENTICATED`.
 
 ---
 
