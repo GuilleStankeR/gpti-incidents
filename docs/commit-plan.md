@@ -35,7 +35,7 @@ verificación manual propia.
 | 18 | Backend | `feat(api): add metrics endpoint` | [x] |
 | 19 | Backend | `feat(db): add historical incidents seed` | [x] |
 | 20 | Frontend | `feat(web): add authentication and app layout` | [x] |
-| 21 | Frontend | `feat(web): add incidents inbox` | [ ] |
+| 21 | Frontend | `feat(web): add incidents inbox` | [x] |
 | 22 | Frontend | `feat(web): add report incident form` | [ ] |
 | 23 | Frontend | `feat(web): add incident detail and actions` | [ ] |
 | 24 | Frontend | `feat(web): add metrics dashboard` | [ ] |
@@ -784,19 +784,26 @@ horizontal ni objetivos táctiles menores a 44 px.
 
 **Archivos (`src/features/incidents/`):**
 - `api/incidents.api.ts`, `api/catalogs.api.ts`, `api/incidents.keys.ts`.
-- `hooks/use-incident-filters.ts` (query string ↔ filtros tipados; cambiar un filtro vuelve a la
-  página 1), `use-incidents.ts` (con `placeholderData` para paginar sin parpadeo),
-  `use-catalogs.ts`, `use-debounced-value.ts` en `shared/hooks`.
-- `components/`: `IncidentFiltersBar.tsx`, `StatusFilter.tsx`, `CategoryFilter.tsx`,
-  `DateRangeFilter.tsx`, `SearchFilter.tsx`, `IncidentsTable.tsx` (desde `md`),
-  `IncidentCardList.tsx` e `IncidentCard.tsx` (bajo `md`), `IncidentStatusBadge.tsx`,
-  `SlaIndicator.tsx`, `IncidentsEmptyState.tsx`.
-- `presentation/status-tones.ts` y `sla-tones.ts`: mapas únicos de color.
-- `src/shared/ui/`: `SelectField.tsx`, `Pagination.tsx`, `Badge.tsx`.
-- `pages/InboxPage.tsx` y `incidents.copy.ts`.
+- `hooks/incident-filters-params.ts` (lectura y escritura pura de la query string),
+  `use-incident-filters.ts` (cambiar un filtro vuelve a la página 1; cambiar de página vuelve
+  arriba), `use-incidents.ts` (con `placeholderData` para paginar sin parpadeo),
+  `use-catalogs.ts`; `use-debounced-value.ts` en `shared/hooks`.
+- `components/`: `IncidentFiltersBar`, `SearchFilter` (estado local con commit diferido a la URL:
+  React Router 7 actualiza la URL en una transición y un input controlado desde la URL pierde
+  teclas), `StatusFilter`, `CategoryFilter`, `ClearFiltersFooter`, `IncidentsTable` e
+  `IncidentsTableRow` (desde `md`, fila clickeable y folio como enlace), `IncidentCardList` e
+  `IncidentCard` (bajo `md`), `IncidentStatusBadge`, `SlaIndicator`, `IncidentsEmptyState`,
+  `InboxResults` (cargando, error con reintento, vacío con o sin filtros, paginación).
+- `presentation/status-tones.ts` y `sla-presentation.ts` (semáforo con tiempo restante o vencido
+  en horas o días; cerrados muestran si cumplieron el plazo).
+- `src/shared/ui/`: `Badge`, `SelectField`, `SearchField`, `DateRangeFields` (ya en `shared`
+  para reutilizarlo en métricas), `Pagination`, `EmptyState` con ícono.
+- `pages/InboxPage.tsx` e `incidents.copy.ts`.
 
-**Verificación:** los filtros viven en la URL y se reconstruyen al recargar (CA-18); se ve al
-menos un vencido en rojo (CA-19); el residente ve solo lo suyo (CA-02); sin desborde a 390 px.
+**Verificación:** con Chrome headless: los filtros viven en la URL y se reconstruyen al recargar
+(CA-18); la búsqueda no pierde caracteres; la paginación y el clic en una fila funcionan; se ven
+dos vencidos en rojo (CA-19); el residente ve solo sus 8 incidentes y no ve Métricas (CA-02); un
+token inválido devuelve al login; sin desborde a 390 px.
 
 ---
 

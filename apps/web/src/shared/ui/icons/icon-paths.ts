@@ -3,6 +3,7 @@ export const ICON_PATHS = {
   close: ['M6 18 18 6M6 6l12 12'],
   check: ['m4.5 12.75 6 6 9-13.5'],
   chevronLeft: ['M15.75 19.5 8.25 12l7.5-7.5'],
+  chevronDown: ['m19.5 8.25-7.5 7.5-7.5-7.5'],
   chevronRight: ['m8.25 4.5 7.5 7.5-7.5 7.5'],
   arrowLeft: ['M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18'],
   download: [

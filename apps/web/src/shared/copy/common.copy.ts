@@ -23,6 +23,18 @@ export const commonCopy = {
     cancel: 'Cancelar',
     close: 'Cerrar',
   },
+  pagination: {
+    label: 'Paginación',
+    previous: 'Anterior',
+    next: 'Siguiente',
+    pageOf: (page: number, pageCount: number): string => `${String(page)} de ${String(pageCount)}`,
+    summary: (first: number, last: number, total: number): string =>
+      `Mostrando ${String(first)}–${String(last)} de ${String(total)}`,
+  },
+  duration: {
+    hours: (value: string): string => `${value} h`,
+    days: (value: string): string => `${value} d`,
+  },
   notFound: {
     title: 'Página no encontrada',
     description: 'La dirección que buscas no existe o fue movida.',

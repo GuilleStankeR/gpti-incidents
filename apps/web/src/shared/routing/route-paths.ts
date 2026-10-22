@@ -1,3 +1,5 @@
+import { generatePath } from 'react-router-dom';
+
 export const ROUTE_PATHS = {
   home: '/',
   login: '/login',
@@ -7,3 +9,7 @@ export const ROUTE_PATHS = {
   metrics: '/metrics',
   notFound: '*',
 } as const;
+
+export function buildIncidentDetailPath(incidentId: string): string {
+  return generatePath(ROUTE_PATHS.incidentDetail, { incidentId });
+}
