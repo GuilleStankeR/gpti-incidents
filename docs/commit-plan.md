@@ -19,7 +19,7 @@ verificación manual propia.
 | 03 | Base | `chore(root): add eslint, prettier and pre-commit hooks` | [x] |
 | 04 | Base | `feat(shared): add shared domain package` | [x] |
 | 05 | Base | `feat(api): bootstrap nestjs application` | [x] |
-| 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [ ] |
+| 06 | Base | `feat(db): add prisma schema, migrations and base seed` | [x] |
 | 07 | Base | `feat(web): bootstrap react application` | [ ] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [ ] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [ ] |
@@ -262,33 +262,38 @@ responde 400, ambos con el formato único.
 
 **Objetivo:** esquema completo, inmutabilidad garantizada por la base y datos maestros.
 
-**Dependencias:** `@prisma/client`, `bcryptjs`. Dev: `prisma`, `tsx`.
+**Dependencias:** `@prisma/client`, `bcryptjs`. Dev: `prisma`, `tsx`. En `allowScripts` (npm 12
+bloquea los scripts de instalación por defecto) se aprueban `prisma` y `@prisma/engines`, que
+descarga los motores; el resto queda denegado de forma explícita.
 
 **Archivos:**
-- `prisma/schema.prisma`: modelos `Condominium`, `User`, `Category`, `Incident`, `Evidence`,
-  `AuditEntry`, `FolioCounter`; enums `IncidentStatus` y `Role`. Nombres según glosario;
-  tablas y columnas en snake_case con `@@map`/`@map`; timestamps `@db.Timestamptz(3)`;
-  `latitude`/`longitude` `Decimal(10, 7)`; `@@unique([condominiumId, folio])`; índices de la
-  especificación §6.1.
+- `prisma/schema.prisma`: modelos `Condominium`, `User` (tabla `user_account`), `Category`,
+  `Incident`, `Evidence`, `AuditEntry`, `FolioCounter`; enums `IncidentStatus` y `Role`. Nombres
+  según glosario; tablas y columnas en snake_case con `@@map`/`@map`; ids `uuid` nativos;
+  timestamps `@db.Timestamptz(3)`; `latitude`/`longitude` `Decimal(10, 7)`; `sha256`
+  `Char(64)`; `@@unique([condominiumId, folio])`; índices de la especificación §6.1.
 - `prisma/migrations/<ts>_init/`: generada con `prisma migrate dev --create-only`, sin
   comentarios.
 - `prisma/migrations/<ts>_immutability_triggers/migration.sql`: función
-  `prevent_modification()` y triggers `BEFORE UPDATE OR DELETE` sobre `audit_entry` y `evidence`.
-- `src/database/prisma.service.ts` (`extends PrismaClient`, conexión en `onModuleInit`) y
-  `src/database/database.module.ts` (global).
-- `prisma/seed/seed.ts`: orquesta seeders en orden dentro de una conexión.
+  `prevent_modification()`, triggers `BEFORE UPDATE OR DELETE` por fila y `BEFORE TRUNCATE` por
+  sentencia sobre `audit_entry` y `evidence` (los triggers por fila no cubren `TRUNCATE`).
+- `src/database/prisma.service.ts` (`extends PrismaClient`, conecta en `onModuleInit` y
+  desconecta en `onModuleDestroy`) y `src/database/database.module.ts` (global).
+- `prisma/seed/seed.ts`: orquesta los seeders en orden con un único `PrismaClient`.
 - `prisma/seed/seeders/`: `condominium.seeder.ts`, `categories.seeder.ts`,
-  `users.seeder.ts`. Todos con `upsert` por clave natural (`code`, `email`): idempotentes.
+  `users.seeder.ts`. Todos con `upsert` por clave natural (`code`, `email`): idempotentes. El
+  hash de contraseña solo se escribe al crear.
 - `prisma/seed/data/`: `condominium.data.ts` (C29, Condominio Parque Oriente),
   `categories.data.ts` (§3.6), `users.data.ts` (§9, contraseña `demo1234` hasheada con bcryptjs).
 - Scripts API: `db:generate`, `db:migrate` (`migrate deploy`), `db:migrate:dev`, `db:seed`,
   `db:reset`, `db:studio`, todos vía `dotenv -e ../../.env --`. `prisma.seed` apunta a `tsx`.
+  `build` y `typecheck` corren `prisma generate` antes, para funcionar desde un clon limpio.
 - Script raíz `setup` completo: `ensure-env` → `npm install` → build de `shared` →
   `docker compose up -d --wait` → `db:generate` → `db:migrate` → `db:seed`.
 
 **Verificación:** `npm run setup` desde cero deja la base migrada y con datos; correr el seed dos
-veces no duplica; `UPDATE audit_entry ...` y `DELETE FROM evidence ...` en `psql` fallan con la
-excepción del trigger (CA-12).
+veces no duplica; `UPDATE`, `DELETE` y `TRUNCATE` sobre `audit_entry` y `evidence` en `psql`
+fallan con la excepción del trigger (CA-12); la API arranca conectada a la base.
 
 ---
 

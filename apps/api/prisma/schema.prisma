@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IncidentStatus {
+  REPORTED
+  UNDER_REVIEW
+  REJECTED
+  ASSIGNED
+  IN_PROGRESS
+  CLOSED
+
+  @@map("incident_status")
+}
+
+enum Role {
+  RESIDENT
+  CONCIERGE
+  ADMIN
+
+  @@map("role")
+}
+
+model Condominium {
+  id      String @id @default(uuid()) @db.Uuid
+  code    String @unique
+  name    String
+  address String
+
+  users         User[]
+  incidents     Incident[]
+  folioCounters FolioCounter[]
+
+  @@map("condominium")
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  condominiumId String   @map("condominium_id") @db.Uuid
+  name          String
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  role          Role
+  phone         String?
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  condominium       Condominium  @relation(fields: [condominiumId], references: [id])
+  reportedIncidents Incident[]   @relation("IncidentReporter")
+  assignedIncidents Incident[]   @relation("IncidentAssignee")
+  auditEntries      AuditEntry[]
+  uploadedEvidence  Evidence[]
+
+  @@index([condominiumId, role])
+  @@map("user_account")
+}
+
+model Category {
+  code     String @id
+  name     String
+  slaHours Int    @map("sla_hours")
+
+  incidents Incident[]
+
+  @@map("category")
+}
+
+model Incident {
+  id              String         @id @default(uuid()) @db.Uuid
+  condominiumId   String         @map("condominium_id") @db.Uuid
+  folio           String
+  categoryCode    String         @map("category_code")
+  description     String
+  location        String
+  latitude        Decimal?       @db.Decimal(10, 7)
+  longitude       Decimal?       @db.Decimal(10, 7)
+  geocodedAddress String?        @map("geocoded_address")
+  occurredAt      DateTime       @map("occurred_at") @db.Timestamptz(3)
+  reportedAt      DateTime       @default(now()) @map("reported_at") @db.Timestamptz(3)
+  dueAt           DateTime       @map("due_at") @db.Timestamptz(3)
+  closedAt        DateTime?      @map("closed_at") @db.Timestamptz(3)
+  status          IncidentStatus @default(REPORTED)
+  reporterId      String         @map("reporter_id") @db.Uuid
+  assigneeId      String?        @map("assignee_id") @db.Uuid
+
+  condominium Condominium  @relation(fields: [condominiumId], references: [id])
+  category    Category     @relation(fields: [categoryCode], references: [code])
+  reporter    User         @relation("IncidentReporter", fields: [reporterId], references: [id])
+  assignee    User?        @relation("IncidentAssignee", fields: [assigneeId], references: [id])
+  evidence    Evidence[]
+  auditTrail  AuditEntry[]
+
+  @@unique([condominiumId, folio])
+  @@index([condominiumId, status])
+  @@index([condominiumId, reportedAt])
+  @@map("incident")
+}
+
+model Evidence {
+  id           String   @id @default(uuid()) @db.Uuid
+  incidentId   String   @map("incident_id") @db.Uuid
+  storagePath  String   @map("storage_path")
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  sizeBytes    Int      @map("size_bytes")
+  sha256       String   @db.Char(64)
+  uploadedById String   @map("uploaded_by_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  incident   Incident @relation(fields: [incidentId], references: [id])
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([incidentId])
+  @@map("evidence")
+}
+
+model AuditEntry {
+  id         String          @id @default(uuid()) @db.Uuid
+  incidentId String          @map("incident_id") @db.Uuid
+  fromStatus IncidentStatus? @map("from_status")
+  toStatus   IncidentStatus  @map("to_status")
+  userId     String          @map("user_id") @db.Uuid
+  note       String
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  incident Incident @relation(fields: [incidentId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([incidentId, createdAt])
+  @@map("audit_entry")
+}
+
+model FolioCounter {
+  condominiumId String @map("condominium_id") @db.Uuid
+  year          Int
+  lastSequence  Int    @default(0) @map("last_sequence")
+
+  condominium Condominium @relation(fields: [condominiumId], references: [id])
+
+  @@id([condominiumId, year])
+  @@map("folio_counter")
+}

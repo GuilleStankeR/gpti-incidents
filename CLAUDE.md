@@ -64,7 +64,7 @@ usuarios, descripciones del seed) también están en español.
 | Español (especificación / UI) | Código |
 |---|---|
 | Condominio | `Condominium`, `condominiumId` |
-| Usuario | `User` |
+| Usuario | `User` (tabla `user_account`: `user` es palabra reservada en PostgreSQL) |
 | Perfil | `Role`: `RESIDENT`, `CONCIERGE`, `ADMIN` |
 | Categoría, SLA en horas | `Category`: `code`, `name`, `slaHours` |
 | Incidente | `Incident` |
@@ -274,7 +274,8 @@ Una feature no importa de otra feature (salvo `auth`).
 - Comentarios de cualquier tipo en cualquier archivo del repositorio que no sea Markdown: incluye
   JSDoc, `TODO`, código comentado, `eslint-disable`, `@ts-ignore` y `@ts-expect-error`, y también
   SQL, Prisma, CSS, YAML y `.env`. Si algo necesita explicación, se renombra o se extrae a una
-  función con nombre expresivo.
+  función con nombre expresivo. Las migraciones que genera Prisma se limpian de comentarios antes
+  de aplicarse. Única excepción: `prisma/migrations/migration_lock.toml`, que Prisma reescribe.
 - `any` explícito o implícito, `as unknown as`, aserción non-null `!`.
 - `enum` de TypeScript: se usan objetos `as const` con un tipo derivado del mismo nombre.
 - `export default`, salvo archivos de configuración que lo exigen (`vite.config.ts`,

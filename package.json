@@ -11,7 +11,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "setup": "node scripts/ensure-env.mjs && npm install",
+    "setup": "node scripts/ensure-env.mjs && npm install && npm run build -w @incidents/shared && npm run db:up && npm run db:generate -w @incidents/api && npm run db:migrate -w @incidents/api && npm run db:seed -w @incidents/api",
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "db:up": "docker compose up -d --wait",
@@ -42,7 +42,11 @@
   "allowScripts": {
     "unrs-resolver": false,
     "fsevents": false,
-    "@nestjs/core": false
+    "@nestjs/core": false,
+    "@prisma/engines@5.22.0": true,
+    "prisma@5.22.0": true,
+    "@prisma/client": false,
+    "esbuild": false
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": [
