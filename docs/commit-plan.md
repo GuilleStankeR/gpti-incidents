@@ -30,7 +30,7 @@ verificación manual propia.
 | 13 | Backend | `feat(api): add incident inbox with filters` | [x] |
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [x] |
 | 15 | Backend | `feat(api): add evidence attachment and file download` | [x] |
-| 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [ ] |
+| 16 | Backend | `feat(api): add non-blocking reverse geocoding` | [x] |
 | 17 | Backend | `feat(api): add case file pdf export` | [ ] |
 | 18 | Backend | `feat(api): add metrics endpoint` | [ ] |
 | 19 | Backend | `feat(db): add historical incidents seed` | [ ] |
@@ -616,17 +616,19 @@ residente no descarga evidencia ajena ni adjunta a incidentes ajenos (404); adju
 - `src/modules/geocoding/geocoder.port.ts`: `Geocoder.reverse(coordinates): Promise<string | null>`
   y token `GEOCODER`.
 - `src/modules/geocoding/nominatim-geocoder.adapter.ts`: `fetch` con
-  `AbortSignal.timeout(NOMINATIM_TIMEOUT_MS)`, `User-Agent` configurado,
-  `accept-language=es`, `format=jsonv2`; arma la dirección desde `address` (calle, número,
-  comuna) con respaldo en `display_name`; ante cualquier fallo registra un `warn` y devuelve
-  `null`.
+  `AbortSignal.timeout(NOMINATIM_TIMEOUT_MS)`, `User-Agent` configurado, `Accept-Language: es`,
+  `format=jsonv2`; ante cualquier fallo registra un `warn` y devuelve `null`.
+- `src/modules/geocoding/nominatim-address.ts`: arma "calle número, comuna" desde `address`
+  validando la forma de la respuesta, con respaldo en `display_name`.
 - `src/modules/geocoding/geocoding.module.ts`.
-- `incidents.service.ts`: después de confirmar la transacción, si hay coordenadas, geocodifica y
-  actualiza `geocodedAddress`; el error nunca se propaga.
+- `incidents/incident-geocoding.service.ts`: después de confirmar el registro, si hay coordenadas,
+  geocodifica y guarda `geocodedAddress` (`IncidentWriteRepository.setGeocodedAddress`); ningún
+  error se propaga (RN-14). El registro espera como máximo el timeout configurado, así la
+  respuesta ya incluye la dirección.
 
 **Verificación:** con red, el detalle trae dirección (CA-14); con
-`NOMINATIM_URL=http://10.255.255.1` el incidente se crea igual, con `geocodedAddress: null` y
-sin error visible (CA-16).
+`NOMINATIM_URL=http://10.255.255.1/reverse` el incidente se crea igual en ~3 s, con
+`geocodedAddress: null`, sin error visible y con un `warn` en el log (CA-16).
 
 ---
 

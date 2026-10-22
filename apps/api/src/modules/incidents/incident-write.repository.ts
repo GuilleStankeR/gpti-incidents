@@ -106,6 +106,16 @@ export class IncidentWriteRepository {
     return isAttached;
   }
 
+  async setGeocodedAddress(
+    target: { readonly incidentId: string; readonly condominiumId: string },
+    geocodedAddress: string,
+  ): Promise<void> {
+    await this.prisma.incident.updateMany({
+      where: { id: target.incidentId, condominiumId: target.condominiumId },
+      data: { geocodedAddress },
+    });
+  }
+
   private async runOrDiscard<TResult>(
     storedPhotos: readonly StoredPhoto[],
     work: (transaction: DatabaseTransaction) => Promise<TResult>,

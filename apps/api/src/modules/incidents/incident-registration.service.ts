@@ -14,6 +14,7 @@ import { CategoriesRepository } from '@/modules/catalogs/categories.repository';
 
 import { assertValidOccurredAt } from './domain/occurred-at';
 import { calculateDueAt } from './domain/sla';
+import { IncidentGeocodingService } from './incident-geocoding.service';
 import { IncidentWriteRepository } from './incident-write.repository';
 import type { IncidentDraft } from './incident-write.repository';
 import { incidentsCopy } from './incidents.copy';
@@ -28,6 +29,7 @@ export class IncidentRegistrationService {
     private readonly categoriesRepository: CategoriesRepository,
     private readonly incidentWriteRepository: IncidentWriteRepository,
     private readonly incidentsService: IncidentsService,
+    private readonly incidentGeocodingService: IncidentGeocodingService,
   ) {}
 
   async register(
@@ -43,6 +45,7 @@ export class IncidentRegistrationService {
     });
 
     this.logger.log(`Incident ${folio} reported by user ${user.id}`);
+    await this.incidentGeocodingService.enrichWithAddress({ ...draft, incidentId: draft.id });
 
     return this.incidentsService.findDetail(user, draft.id);
   }
