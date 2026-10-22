@@ -25,7 +25,7 @@ verificación manual propia.
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [x] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [x] |
 | 10 | Backend | `feat(api): add pure incident domain rules` | [x] |
-| 11 | Backend | `feat(api): add file storage and photo validation` | [ ] |
+| 11 | Backend | `feat(api): add file storage and photo validation` | [x] |
 | 12 | Backend | `feat(api): add incident creation and detail` | [ ] |
 | 13 | Backend | `feat(api): add incident inbox with filters` | [ ] |
 | 14 | Backend | `feat(api): add incident transitions and reassignment` | [ ] |
@@ -457,16 +457,23 @@ vencimiento de cerrados y rechazados, RN-01 a RN-07 y la matriz de permisos.
 - `src/modules/storage/file-storage.port.ts`: interfaz `FileStorage` (`save`, `read`, `remove`)
   y token `FILE_STORAGE`.
 - `src/modules/storage/local-disk-storage.adapter.ts`: escribe en
-  `{STORAGE_DIR}/{incidentId}/{uuid}.{ext}` y devuelve la ruta relativa.
+  `{STORAGE_DIR}/{incidentId}/{uuid}.{ext}` con creación exclusiva (nunca sobrescribe), deja el
+  archivo en solo lectura, rechaza rutas que escapen del directorio y devuelve la ruta relativa.
 - `src/modules/storage/storage.module.ts`.
-- `src/common/files/photo-signature.ts`: detección por bytes mágicos (JPEG, PNG, WebP); el
-  `mimetype` declarado por el cliente no basta.
+- `src/common/files/photo-signature.ts`: detección por bytes mágicos (JPEG, PNG, WebP) y extensión
+  por tipo; el `mimetype` declarado por el cliente no se usa.
 - `src/common/files/sha256.ts`: hash del buffer.
+- `src/common/files/validated-photo.ts`: foto validada (nombre, tipo detectado, tamaño, hash,
+  contenido).
 - `src/common/files/photo-files.pipe.ts`: valida cantidad, tamaño y firma; lanza `INVALID_FILE`.
-- `src/common/files/photo-upload.constants.ts`: nombre del campo `photos`.
-- Configuración de Multer con `MulterModule.registerAsync` (memoria, límites desde `AppConfig`).
+- `src/common/files/photo-upload.interceptor.ts`: envuelve `FilesInterceptor('photos')` con
+  límites de `AppConfig` (memoria, nombres de archivo UTF-8) y traduce los errores de Multer a
+  `INVALID_FILE`.
+- `@types/multer` en `types` del `tsconfig` de la API; `overrides.rxjs` en la raíz para tener
+  una sola copia de `rxjs` (dos copias rompen los tipos de `Observable`).
 
-**Verificación:** se ejerce en el commit 12.
+**Verificación:** detección de firma sobre JPEG y PNG reales y un archivo falso; el flujo HTTP
+completo se ejerce en el commit 12.
 
 ---
 
