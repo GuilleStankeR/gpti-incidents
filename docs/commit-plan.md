@@ -24,7 +24,7 @@ verificación manual propia.
 | 07b | Base | `chore(deps): upgrade stack to clear npm audit` | [x] |
 | 08 | Backend | `feat(api): add jwt authentication and role guards` | [x] |
 | 09 | Backend | `feat(api): add catalogs and assignable users endpoints` | [x] |
-| 10 | Backend | `feat(api): add pure incident domain rules` | [ ] |
+| 10 | Backend | `feat(api): add pure incident domain rules` | [x] |
 | 11 | Backend | `feat(api): add file storage and photo validation` | [ ] |
 | 12 | Backend | `feat(api): add incident creation and detail` | [ ] |
 | 13 | Backend | `feat(api): add incident inbox with filters` | [ ] |
@@ -426,8 +426,8 @@ inválido → 401 `UNAUTHENTICATED`.
 **Archivos (`src/modules/incidents/domain/`):**
 - `state-machine.ts`: `assertTransitionAllowed(from, to)` (RN-01) y
   `getAvailableTransitions(status, role)` (combina máquina de estados y matriz de permisos).
-- `transition-policy.ts`: `assertRoleCanTransition(role, target)` (§3.5) y
-  `assertTransitionRequirements({ target, assigneeId, evidenceCount, note })` (RN-02, RN-03,
+- `transition-policy.ts`: `assertRoleCanTransition(role, target)` (§3.5), `assertValidNote`
+  y `assertTransitionRequirements({ target, assigneeId, evidenceCount, note })` (RN-02, RN-03,
   RN-04).
 - `reassignment-policy.ts`: `assertReassignable(status)` (RN-06).
 - `evidence-policy.ts`: `assertCanAttachEvidence(status)`.
@@ -437,10 +437,13 @@ inválido → 401 `UNAUTHENTICATED`.
 - `occurred-at.ts`: `assertValidOccurredAt(occurredAt, reportedAt)` (RN-07).
 - `visibility.ts`: `buildVisibilityScope(user)` → `{ condominiumId, reporterId? }` (RN-10,
   RN-11).
-- `domain.constants.ts`: constantes de tiempo y redondeo.
+- `domain.constants.ts`: dígitos del folio, umbral del semáforo y redondeo de horas.
+- `src/common/time/date-math.ts`: aritmética de fechas pura (`addHours`, `subtractDays`,
+  `hoursBetween`, `roundToDecimals`), reutilizada por métricas y seed.
 
-**Verificación:** lint confirma que `domain/` no importa infraestructura; revisión manual de cada
-regla contra la especificación con un script desechable en `tsx` que no se commitea.
+**Verificación:** lint confirma que `domain/` no importa infraestructura; un script desechable en
+`tsx` (fuera del repositorio) ejercita cada regla: folio con relleno, tres tramos del semáforo,
+vencimiento de cerrados y rechazados, RN-01 a RN-07 y la matriz de permisos.
 
 ---
 
