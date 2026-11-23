@@ -28,10 +28,28 @@ Este archivo prevalece sobre `ESPECIFICACION-MVP.md` donde difieren:
 | Backend | NestJS 10 | NestJS 11 (Express 5, `@nestjs/config` 4): NestJS 10 arrastra vulnerabilidades sin parche |
 | Routing web | `react-router-dom` 6 | `react-router-dom` 7, en modo librería (misma API declarativa) |
 | Estilos | Tailwind CSS 3.4 con PostCSS; prohibido Tailwind 4 | Tailwind CSS 4 con `@tailwindcss/vite`: Tailwind 3 depende de `braces`, vulnerable y sin versión corregida |
+| Clasificación automática | Fuera de alcance (§2.3) | Dentro de alcance: sugerencia de categoría por palabras clave y de responsable por historial y carga, siempre modificables por el usuario (§2.1) |
+| Despliegue | Fuera de alcance (§2.1 y §2.3) | API en Render, web en Vercel, base PostgreSQL de Render, con datos de demostración precargados |
+| Almacenamiento de archivos | Disco local | Disco local o tabla `stored_file`, según `STORAGE_DRIVER`; producción usa la base de datos porque el disco de Render es efímero |
 
 Las tres actualizaciones de stack las autorizó el usuario para dejar `npm audit` sin
 vulnerabilidades. Todo lo demás de la especificación sigue vigente: resto del stack (§4), reglas de
 negocio, matriz de permisos, contratos (traducidos según el glosario) y prohibiciones (§13).
+
+### 2.1 Alcance de la entrega final
+
+Además de §2.2 de la especificación, entran estas capacidades, aprobadas por el usuario:
+
+| # | Capacidad |
+|---|---|
+| F1 | Sugerencia de categoría mientras se escribe el reporte, con los términos detectados a la vista. El servidor recalcula y guarda la sugerencia; nunca la acepta del cliente |
+| F2 | Sugerencia de responsable al asignar o reasignar, según casos cerrados en la categoría y carga actual |
+| F3 | La elección manual siempre prevalece sobre la sugerencia |
+| F4 | Indicador de sugerencias de categoría aceptadas en el panel de métricas |
+| F5 | Despliegue en producción (Render y Vercel) con almacenamiento persistente, CORS, cabeceras de seguridad, límite de intentos de login y chequeo de salud |
+| F6 | Integración continua: lint, tipos, build y auditoría en cada push |
+
+Dependencias nuevas aprobadas: `helmet` y `@nestjs/throttler`.
 
 ## 3. Flujo de trabajo
 
@@ -46,7 +64,8 @@ negocio, matriz de permisos, contratos (traducidos según el glosario) y prohibi
 5. Mensajes de commit en inglés con Conventional Commits: `type(scope): summary`.
    Tipos: `feat`, `fix`, `refactor`, `chore`, `docs`, `style`. Scopes: `root`, `shared`, `api`,
    `db`, `web`, `docs`.
-6. Nada fuera del alcance (§2.2 de la especificación), aunque parezca una mejora obvia.
+6. Nada fuera del alcance (§2.2 de la especificación y §2.1 de este archivo), aunque parezca una
+   mejora obvia.
 7. Dependencias: solo las del stack de la especificación y las de tooling listadas en el plan.
    Cualquier otra requiere aprobación explícita. Versiones exactas (`save-exact`).
 8. `npm audit` debe reportar 0 vulnerabilidades. Agregar o actualizar una dependencia no puede
@@ -106,6 +125,17 @@ usuarios, descripciones del seed) también están en español.
 | Abiertos vencidos | `openOverdue` |
 | Ruta de archivo / Nombre original / Tamaño / Hash | `storagePath` / `originalName` / `sizeBytes` / `sha256` |
 | Subido por / Creado en | `uploadedBy` / `createdAt` |
+| Código de categoría | `CategoryCode` |
+| Sugerencia de categoría / sugerir categoría | `CategorySuggestion` / `suggestCategory` |
+| Categoría sugerida | `suggestedCategoryCode` (columna `suggested_category_code`), `suggestedCategory` |
+| Términos detectados | `matchedTerms` |
+| Confianza de la sugerencia | `SuggestionConfidence`: `HIGH`, `MEDIUM` |
+| Sugerencia de responsable | `AssigneeSuggestion` |
+| Casos cerrados en la categoría / casos abiertos asignados | `closedInCategory` / `openAssigned` |
+| Porcentaje de sugerencias de categoría aceptadas | `percentCategorySuggestionsAccepted` |
+| Archivo almacenado en la base de datos | `StoredFile` (tabla `stored_file`) |
+| Medio de almacenamiento | `StorageDriver`: `local`, `database` |
+| Chequeo de salud | `health` |
 
 Estados del incidente:
 
@@ -138,6 +168,7 @@ Códigos de error (respuesta `{ code, message, status }`):
 | `FECHA_HECHO_INVALIDA` | `INVALID_OCCURRED_AT` | 400 |
 | `ARCHIVO_INVALIDO` | `INVALID_FILE` | 400 |
 | `VALIDACION` | `VALIDATION_FAILED` | 400 |
+| (nuevo) | `TOO_MANY_REQUESTS` | 429 |
 | (nuevo) | `INTERNAL_ERROR` | 500 |
 
 Un término nuevo se agrega a este glosario antes de usarse en el código.
@@ -172,6 +203,9 @@ Un término nuevo se agrega a este glosario antes de usarse en el código.
 ├── scripts/                     scripts de soporte del monorepo (Node, .mjs)
 ├── docker-compose.yml           solo PostgreSQL 16
 ├── .env.example
+├── render.yaml                  blueprint de producción: API y PostgreSQL en Render
+├── vercel.json                  build y rutas de la web en Vercel
+├── .github/workflows/ci.yml     integración continua
 ├── packages/
 │   └── shared/                  @incidents/shared
 └── apps/
@@ -185,6 +219,8 @@ Un término nuevo se agrega a este glosario antes de usarse en el código.
 src/
 ├── index.ts                     único barrel permitido del monorepo
 ├── incident-status.ts           IncidentStatus, transiciones, estados terminales
+├── category-code.ts             CategoryCode
+├── classification/              sugerencia de categoría por palabras clave (funciones puras)
 ├── role.ts                      Role, roles asignables
 ├── permissions.ts               capacidades y transiciones permitidas por rol
 ├── sla-status.ts                SlaStatus
@@ -228,13 +264,16 @@ src/
     ├── catalogs/
     ├── users/
     ├── incidents/
-    │   ├── domain/              funciones puras: máquina de estados, folio, SLA, reglas
+    │   ├── domain/              funciones puras: máquina de estados, folio, SLA, reglas,
+    │   │                        elección del responsable sugerido
     │   ├── dto/
     │   ├── incidents.controller.ts
     │   ├── incidents.service.ts         lecturas
     │   ├── incident-registration.service.ts
     │   ├── incident-workflow.service.ts
     │   ├── incident-evidence.service.ts
+    │   ├── assignee-suggestion.service.ts
+    │   ├── assignee-suggestion.repository.ts
     │   ├── incidents.repository.ts      consultas
     │   ├── incident-write.repository.ts    registro y evidencia (con archivos)
     │   ├── incident-workflow.repository.ts cambios de estado y responsable
@@ -243,10 +282,11 @@ src/
     │   ├── incidents.copy.ts
     │   └── incidents.module.ts
     ├── evidence/
-    ├── storage/                 puerto FileStorage + adaptador de disco local
+    ├── storage/                 puerto FileStorage + adaptadores de disco local y de base de datos
     ├── geocoding/               puerto Geocoder + adaptador Nominatim
     ├── case-files/              expediente PDF por secciones
-    └── metrics/
+    ├── metrics/
+    └── health/                  chequeo de salud para la plataforma de despliegue
 ```
 
 ### 6.3 `apps/web`
@@ -424,7 +464,7 @@ Sufijos de la API: `.controller`, `.service`, `.repository`, `.mapper`, `.module
 
 ## 12. Prohibiciones de producto (especificación §13)
 
-- No agregar funcionalidades fuera de §2.2 de la especificación.
+- No agregar funcionalidades fuera de §2.2 de la especificación y §2.1 de este archivo.
 - No sustituir ninguna tecnología de §4 de la especificación.
 - No implementar edición ni borrado de incidentes, evidencia o bitácora.
 - No exponer `passwordHash` ni `storagePath` en ninguna respuesta.
@@ -445,3 +485,4 @@ Sufijos de la API: `.controller`, `.service`, `.repository`, `.mapper`, `.module
 | `npm run lint` / `npm run lint:fix` | ESLint sobre todo el monorepo |
 | `npm run format` / `npm run format:check` | Prettier sobre todo el monorepo |
 | `npm run db:reset` | Vacía el almacenamiento, recrea la base, aplica migraciones y carga el seed |
+| `npm run start:production -w @incidents/api` | En producción: migra, carga el seed si la base está vacía y levanta la API compilada |

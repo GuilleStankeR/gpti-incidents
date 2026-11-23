@@ -40,9 +40,23 @@ verificación manual propia.
 | 23 | Frontend | `feat(web): add incident detail and actions` | [x] |
 | 24 | Frontend | `feat(web): add metrics dashboard` | [x] |
 | 25 | Cierre | `docs: add readme and acceptance checklist` | [x] |
+| 26 | Entrega final | `docs: plan final delivery scope` | [x] |
+| 27 | Entrega final | `feat(shared): add keyword-based category classifier` | [ ] |
+| 28 | Entrega final | `feat(api): store category suggestions and report their accuracy` | [ ] |
+| 29 | Entrega final | `feat(api): add assignee suggestion endpoint` | [ ] |
+| 30 | Entrega final | `feat(web): suggest category while reporting` | [ ] |
+| 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [ ] |
+| 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [ ] |
+| 33 | Entrega final | `feat(api): add database file storage adapter` | [ ] |
+| 34 | Entrega final | `feat(root): prepare production deployment` | [ ] |
+| 35 | Entrega final | `chore(root): add continuous integration workflow` | [ ] |
+| 36 | Entrega final | `docs: add deployment guide and final checklist` | [ ] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
 de datos y la web arrancando, sin funcionalidades de negocio.
+
+La fase **Entrega final** (26 a 36) agrega la clasificación automática y el despliegue en
+producción descritos en `CLAUDE.md` §2.1.
 
 ---
 
@@ -914,3 +928,195 @@ bandeja; capturas a 1440 px y 390 px sin desborde.
 **Verificación:** `npm run build` sin errores ni advertencias (CA-23); clon limpio desde GitHub
 con la base vacía → `npm start` deja el sistema operativo con datos; los diez pasos del guion §12
 se ejecutan en una sola corrida automatizada en Chrome headless, sin errores de página.
+
+---
+
+## 26 · `docs: plan final delivery scope`
+
+**Objetivo:** dejar registrado el alcance de la entrega final antes de implementarlo.
+
+**Archivos:** `CLAUDE.md` (precedencia: clasificación, despliegue y almacenamiento; §2.1 con F1 a
+F6 y dependencias aprobadas; glosario con los términos nuevos y `TOO_MANY_REQUESTS`; árboles de
+carpetas; comando de producción) y esta fase del plan.
+
+**Verificación:** revisión de los documentos.
+
+---
+
+## 27 · `feat(shared): add keyword-based category classifier`
+
+**Objetivo:** función pura que sugiere la categoría a partir de la descripción y la ubicación
+(F1). Vive en `@incidents/shared` para que la web la ejecute mientras se escribe y la API la
+recalcule al guardar.
+
+**Archivos (`packages/shared/src/`):**
+- `category-code.ts`: `CategoryCode` (`SECURITY`, `ELEVATOR`, `WATER_LEAK`, `ELECTRICAL`,
+  `COMMON_AREAS`, `OTHER`).
+- `classification/text-normalization.ts`: minúsculas, sin tildes ni puntuación; palabras con su
+  forma original para mostrarlas.
+- `classification/category-keywords.catalog.ts`: raíces y frases en español por categoría, en dos
+  niveles (fuerte y moderado), y pistas por ubicación del catálogo (por ejemplo, los ascensores).
+  `OTHER` no tiene palabras: nunca se sugiere.
+- `classification/category-classifier.ts`: `suggestCategory({ description, location })` →
+  `CategorySuggestion | null` con `categoryCode`, `confidence` (`HIGH` o `MEDIUM`) y
+  `matchedTerms`. Puntaje = suma de pesos de cada término distinto encontrado (una raíz calza con
+  el inicio de una palabra; una frase, con palabras consecutivas). Sin sugerencia si el mejor
+  puntaje no alcanza el mínimo o si hay empate.
+
+**Verificación:** con `tsx`, las descripciones del seed y frases de ejemplo producen la categoría
+esperada en la gran mayoría de los casos y `null` con textos sin señales.
+
+---
+
+## 28 · `feat(api): store category suggestions and report their accuracy`
+
+**Objetivo:** el servidor calcula y guarda la sugerencia de cada incidente, la expone en el detalle
+y mide cuántas se aceptaron (F1, F3, F4).
+
+**Archivos:**
+- `prisma/schema.prisma` y migración: `incident.suggested_category_code` (nullable, FK a
+  `category`).
+- `incident-registration.service.ts`: `suggestCategory` sobre la descripción y la ubicación
+  recibidas; el DTO no acepta el campo.
+- `IncidentDetail.suggestedCategory` en `@incidents/shared` y en `incidents.mapper.ts`.
+- `metrics`: `percentCategorySuggestionsAccepted` = incidentes del período con sugerencia cuya
+  categoría final coincide, sobre los incidentes con sugerencia.
+
+**Verificación:** crear un incidente por API con una descripción de filtración y categoría
+eléctrica guarda la sugerencia `WATER_LEAK`; el detalle la muestra; las métricas devuelven el
+porcentaje.
+
+---
+
+## 29 · `feat(api): add assignee suggestion endpoint`
+
+**Objetivo:** sugerir responsable al asignar o reasignar (F2).
+
+**Archivos (`modules/incidents/`):**
+- `domain/assignee-suggestion.ts`: `pickSuggestedAssignee(candidates, excludedAssigneeId)`.
+  Puntaje = casos cerrados de la categoría en los últimos 90 días × 2 − casos abiertos asignados;
+  desempate por menor carga y luego por nombre. Excluye al responsable actual.
+- `assignee-suggestion.repository.ts`: conteos por responsable con `groupBy`, filtrados por
+  condominio.
+- `assignee-suggestion.service.ts` y `GET /api/incidents/:incidentId/assignee-suggestion` con
+  `@RequireCapability(MANAGE_ASSIGNMENTS)` → `AssigneeSuggestionResponse`
+  (`{ suggestion: { assignee, closedInCategory, openAssigned } | null }`).
+
+**Verificación:** como administrador, la sugerencia de un incidente de filtración en revisión
+apunta al conserje con más casos cerrados de esa categoría; un conserje recibe `FORBIDDEN_ROLE`;
+un incidente de otro condominio responde 404.
+
+---
+
+## 30 · `feat(web): suggest category while reporting`
+
+**Objetivo:** la categoría se completa sola mientras se escribe, con los términos detectados, y la
+elección manual prevalece (F1, F3).
+
+**Archivos (`features/incidents/`):**
+- `hooks/use-category-suggestion.ts`: `suggestCategory` sobre la descripción con debounce;
+  mientras el usuario no elija a mano, aplica la sugerencia; al elegir a mano se marca como manual
+  y deja de sobrescribir; `applySuggestion` vuelve a la sugerencia.
+- `components/report/CategorySuggestionHint.tsx`: "Sugerida automáticamente · detectamos …" o
+  "Elegiste otra categoría · la sugerencia era … [Usar sugerencia]".
+- La descripción pasa antes que la categoría en la sección "¿Qué ocurrió?".
+- Ícono `sparkles` en `shared/ui/icons`; copy en `report-incident.copy.ts`.
+
+**Verificación:** con Chrome headless, escribir una filtración selecciona "Filtración o daño por
+agua" con los términos a la vista; elegir otra categoría la mantiene aunque se siga escribiendo;
+"Usar sugerencia" la restituye; sin desborde a 390 px.
+
+---
+
+## 31 · `feat(web): suggest assignee and show suggestion accuracy`
+
+**Objetivo:** el modal de asignación y el de reasignación abren con el responsable sugerido y el
+motivo; el detalle indica si la categoría fue sugerida; el panel suma el indicador (F2 a F4).
+
+**Archivos:**
+- `features/incidents/api`: `getAssigneeSuggestion` y su clave;
+  `hooks/use-assignee-suggestion.ts` (solo con `MANAGE_ASSIGNMENTS`).
+- `components/detail/AssigneeSuggestionHint.tsx`; `AssigneeSelect` recibe la sugerencia; los
+  formularios de transición y reasignación preseleccionan al sugerido mientras el usuario no
+  elija otro.
+- `IncidentInfoCard`: etiqueta "Sugerida automáticamente" o "Sugerencia: …" junto a la categoría.
+- `features/metrics`: quinta tarjeta "Sugerencias de categoría aceptadas".
+
+**Verificación:** con Chrome headless, asignar un incidente en revisión muestra el responsable
+sugerido y el motivo; cambiarlo a mano se respeta; el panel muestra el indicador; capturas a
+1440 px y 390 px.
+
+---
+
+## 32 · `feat(db): seed assignee specialties and category suggestions`
+
+**Objetivo:** que la demostración muestre sugerencias coherentes.
+
+**Archivos:** datos del seed con especialidades claras (Luis Meneses: filtraciones y seguridad;
+Héctor Salas: electricidad y áreas comunes; Patricia Rojas: ascensores, coordinados con la
+empresa de mantención); `incident-writer.ts` guarda `suggestedCategoryCode` calculado con el
+clasificador.
+
+**Verificación:** `npm run db:reset`; la filtración del guion sugiere a Luis Meneses; el panel
+muestra un porcentaje de sugerencias aceptadas alto y distinto de cero.
+
+---
+
+## 33 · `feat(api): add database file storage adapter`
+
+**Objetivo:** almacenamiento persistente en producción sin servicios externos (F5).
+
+**Archivos:**
+- `prisma/schema.prisma` y migración: tabla `stored_file` (`storage_path` PK, `content` bytea,
+  `created_at`), con trigger que impide `UPDATE` y `TRUNCATE` (el contenido es inmutable; el
+  borrado queda para la compensación de una transacción fallida).
+- `modules/storage/stored-file.repository.ts`, `database-storage.adapter.ts`; `storage.module.ts`
+  elige el adaptador según `STORAGE_DRIVER` (`local` o `database`), validado en `Environment`.
+- Seed: el escritor de evidencia usa el mismo medio que la API (con `database`, el archivo se
+  inserta en la misma transacción del incidente).
+
+**Verificación:** con `STORAGE_DRIVER=database`, `npm run db:reset`, reporte con fotografías,
+visor de evidencia y PDF funcionan sin archivos en `apps/api/storage`; `UPDATE stored_file` falla.
+
+---
+
+## 34 · `feat(root): prepare production deployment`
+
+**Objetivo:** API desplegable en Render y web en Vercel (F5).
+
+**Archivos:**
+- API: CORS con `CORS_ORIGINS`, `helmet`, `trust proxy` con `TRUST_PROXY_HOPS`, límite de intentos
+  de login con `@nestjs/throttler` (`LOGIN_MAX_ATTEMPTS_PER_MINUTE`, respuesta
+  `TOO_MANY_REQUESTS`), módulo `health` (`GET /api/health` con consulta a la base), script
+  `start:production` (migra, carga el seed si la base está vacía y levanta `dist/main.js`).
+- Web: `VITE_API_URL` opcional en el cliente HTTP (vacía → mismo origen con el proxy de Vite);
+  `vite.config.ts` solo exige `API_PORT` al levantar el servidor de desarrollo.
+- `render.yaml` (PostgreSQL 16 gratis y servicio web Node 22) y `vercel.json` (build del monorepo
+  y redirección de rutas de la SPA a `index.html`); `.env.example` con las variables nuevas.
+
+**Verificación:** build de producción local con las variables de producción; `GET /api/health`
+responde `ok`; el undécimo intento de login en un minuto recibe `TOO_MANY_REQUESTS`; una petición
+desde un origen no permitido no recibe cabeceras CORS; `npm audit` en 0.
+
+---
+
+## 35 · `chore(root): add continuous integration workflow`
+
+**Objetivo:** lint, tipos, build y auditoría en cada push y pull request (F6).
+
+**Archivos:** `.github/workflows/ci.yml` (Node 22, `npm ci`, build de `shared`, `npm run lint`,
+`npm run typecheck`, `npm run build`, `npm audit`).
+
+**Verificación:** el workflow pasa en verde en GitHub.
+
+---
+
+## 36 · `docs: add deployment guide and final checklist`
+
+**Objetivo:** documentación de la entrega final.
+
+**Archivos:** `docs/deployment.md` (paso a paso en Render y Vercel, variables, cuentas y cómo
+refrescar los datos de demostración); `README.md` (clasificación automática, producción,
+variables nuevas); `docs/acceptance-checklist.md` (criterios de la entrega final).
+
+**Verificación:** revisión de los documentos y del guion de demostración completo en local.
