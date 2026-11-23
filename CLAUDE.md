@@ -48,8 +48,10 @@ Además de §2.2 de la especificación, entran estas capacidades, aprobadas por 
 | F4 | Indicador de sugerencias de categoría aceptadas en el panel de métricas |
 | F5 | Despliegue en producción (Render y Vercel) con almacenamiento persistente, CORS, cabeceras de seguridad, límite de intentos de login y chequeo de salud |
 | F6 | Integración continua: lint, tipos, build y auditoría en cada push |
+| F7 | Solicitud de cambio 1: el administrador genera un código QR descargable e imprimible con el enlace a "Nuevo incidente", con el condominio y, si se elige, la ubicación preseleccionados. Sin sesión, el enlace pasa por el login y vuelve al formulario |
+| F8 | Solicitud de cambio 2: al elegir categoría y ubicación, el formulario avisa si hay un incidente abierto con la misma categoría y ubicación registrado en las últimas 48 horas. El aviso no bloquea; los residentes solo ven el detalle de sus propios incidentes |
 
-Dependencias nuevas aprobadas: `helmet` y `@nestjs/throttler`.
+Dependencias nuevas aprobadas: `helmet`, `@nestjs/throttler` y `qrcode-generator` (F7).
 
 ## 3. Flujo de trabajo
 
@@ -114,7 +116,7 @@ usuarios, descripciones del seed) también están en español.
 | Transiciones posibles | `availableTransitions` |
 | Usuarios asignables | `assignable users` |
 | Usuario de una entrada de bitácora | `user` |
-| Capacidad de un perfil | `Capability`: `VIEW_ALL_INCIDENTS`, `MANAGE_ASSIGNMENTS`, `DOWNLOAD_CASE_FILE`, `VIEW_METRICS` |
+| Capacidad de un perfil | `Capability`: `VIEW_ALL_INCIDENTS`, `MANAGE_ASSIGNMENTS`, `DOWNLOAD_CASE_FILE`, `VIEW_METRICS`, `GENERATE_QR_CODES` |
 | Bandeja | `Inbox` |
 | Filtros: estado / categoría / desde / hasta / texto | `status` / `category` / `from` / `to` / `search` |
 | Paginación: datos / página / por página | `items` / `page` / `pageSize` |
@@ -136,6 +138,10 @@ usuarios, descripciones del seed) también están en español.
 | Archivo almacenado en la base de datos | `StoredFile` (tabla `stored_file`) |
 | Medio de almacenamiento | `StorageDriver`: `local`, `database` |
 | Chequeo de salud | `health` |
+| Código QR / enlace de reporte | `QrCode` / `reportLink` (ruta web `/qr-codes`) |
+| Parámetros del enlace de reporte: condominio / ubicación | `condominium` / `location` |
+| Posible duplicado / reportes no visibles | `PossibleDuplicate` / `hiddenCount` |
+| Ventana para detectar duplicados | `DUPLICATE_WINDOW_HOURS` (48) |
 
 Estados del incidente:
 

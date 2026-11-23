@@ -52,12 +52,18 @@ verificación manual propia.
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [x] |
 | 36 | Entrega final | `docs: add deployment guide and final checklist` | [x] |
 | 37 | Entrega final | `feat(shared): expand category keyword catalog` | [x] |
+| 38 | Solicitudes de cambio | `docs: plan change requests 1 and 2` | [x] |
+| 39 | Solicitudes de cambio | `feat(api): add possible duplicates endpoint` | [ ] |
+| 40 | Solicitudes de cambio | `feat(web): warn about possible duplicates while reporting` | [ ] |
+| 41 | Solicitudes de cambio | `feat(web): generate report qr codes per condominium and location` | [ ] |
+| 42 | Solicitudes de cambio | `docs: document change requests` | [ ] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
 de datos y la web arrancando, sin funcionalidades de negocio.
 
 La fase **Entrega final** (26 a 37) agrega la clasificación automática y el despliegue en
-producción descritos en `CLAUDE.md` §2.1.
+producción descritos en `CLAUDE.md` §2.1. La fase **Solicitudes de cambio** (38 a 42) implementa
+las solicitudes 1 y 2 del Grupo 9, aceptadas por el equipo (F7 y F8).
 
 ---
 
@@ -1144,3 +1150,80 @@ a peso moderado para no ganarle a las palabras que describen el problema.
 **Verificación:** seed con 28 de 29 sugerencias correctas (antes 27 de 28); set de 59 frases
 realistas con 59 aciertos y ninguna sugerencia equivocada; las frases de ejemplo de la demo
 mantienen su resultado.
+
+---
+
+## 38 · `docs: plan change requests 1 and 2`
+
+**Objetivo:** registrar las solicitudes de cambio aceptadas antes de implementarlas.
+
+**Archivos:** `CLAUDE.md` (F7, F8, dependencia `qrcode-generator`, capacidad `GENERATE_QR_CODES`
+y términos nuevos del glosario) y esta fase del plan.
+
+**Verificación:** revisión de los documentos.
+
+---
+
+## 39 · `feat(api): add possible duplicates endpoint`
+
+**Objetivo:** consultar incidentes abiertos que podrían ser el mismo hecho (F8).
+
+**Archivos:**
+- `@incidents/shared`: `DUPLICATE_WINDOW_HOURS = 48`, `PossibleDuplicatesQuery`,
+  `PossibleDuplicate` (`id`, `folio`, `status`, `reportedAt`) y `PossibleDuplicatesResponse`
+  (`duplicates`, `hiddenCount`).
+- `modules/incidents/`: `GET /api/incidents/possible-duplicates?category=&location=` en un
+  controlador propio registrado antes que `IncidentsController` (la ruta fija debe resolverse
+  antes que `:incidentId`); DTO con categoría y ubicación del catálogo; repositorio que busca
+  incidentes no terminales del condominio con la misma categoría y ubicación registrados en las
+  últimas 48 horas; función de dominio que separa lo que el usuario puede ver (el residente, solo
+  sus propios incidentes) del resto, que se informa solo como cantidad.
+
+**Verificación:** con el seed, un conserje que consulta filtración en `Estacionamiento -1`
+recibe el folio abierto; un residente recibe `hiddenCount` sin detalle; una combinación sin
+coincidencias devuelve listas vacías; una ubicación fuera del catálogo responde
+`VALIDATION_FAILED`.
+
+---
+
+## 40 · `feat(web): warn about possible duplicates while reporting`
+
+**Objetivo:** aviso informativo en "Nuevo incidente" (F8).
+
+**Archivos (`features/incidents/`):** `getPossibleDuplicates` y su clave; hook
+`use-possible-duplicates.ts` (activo solo con categoría y ubicación); componente
+`PossibleDuplicateNotice` con folio, estado, fecha y enlace al incidente (abre en otra pestaña
+para no perder el formulario), y el aviso genérico cuando hay reportes no visibles; copy.
+
+**Verificación:** con Chrome headless, el conserje ve el aviso con el folio al elegir filtración en
+`Estacionamiento -1`; el residente ve el aviso genérico; el envío no se bloquea; sin desborde a
+390 px.
+
+---
+
+## 41 · `feat(web): generate report qr codes per condominium and location`
+
+**Objetivo:** códigos QR descargables e imprimibles hacia "Nuevo incidente" (F7).
+
+**Archivos:**
+- `@incidents/shared`: capacidad `GENERATE_QR_CODES` para el administrador.
+- `features/incidents/`: página `/qr-codes` con selector de ubicación opcional, vista previa del
+  QR en SVG, enlace copiable, descarga en PNG (afiche con el nombre del condominio, la ubicación
+  y la instrucción) e impresión con estilos `print:`; el formulario de reporte lee `condominium` y
+  `location` de la URL, preselecciona la ubicación si es del catálogo y avisa si el código es de
+  otro condominio.
+- `features/auth`: el login vuelve a la ruta que pidió el usuario (con sus parámetros) en vez de
+  ir siempre a la bandeja.
+- `qrcode-generator` como dependencia de la web.
+
+**Verificación:** con Chrome headless, el administrador genera el QR de `Ascensor Torre A`, lo
+descarga y el contenido del QR apunta al formulario; sin sesión, el enlace lleva al login y,
+tras entrar, al formulario con la ubicación preseleccionada; el conserje no ve la opción.
+
+---
+
+## 42 · `docs: document change requests`
+
+**Objetivo:** documentar ambas solicitudes en el README y en el checklist.
+
+**Verificación:** revisión de los documentos y demostración en producción.
