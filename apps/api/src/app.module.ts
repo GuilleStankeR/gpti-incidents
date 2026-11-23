@@ -8,6 +8,7 @@ import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CaseFilesModule } from '@/modules/case-files/case-files.module';
 import { CatalogsModule } from '@/modules/catalogs/catalogs.module';
+import { HealthModule } from '@/modules/health/health.module';
 import { IncidentsModule } from '@/modules/incidents/incidents.module';
 import { MetricsModule } from '@/modules/metrics/metrics.module';
 import { UsersModule } from '@/modules/users/users.module';
@@ -22,6 +23,7 @@ import { UsersModule } from '@/modules/users/users.module';
     IncidentsModule,
     CaseFilesModule,
     MetricsModule,
+    HealthModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: ApiExceptionFilter },

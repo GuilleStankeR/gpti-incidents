@@ -20,5 +20,7 @@ export const ERROR_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   [ErrorCode.INVALID_FILE]:
     'Las fotografías deben ser JPEG, PNG o WebP y no superar el tamaño ni la cantidad máxima permitida.',
   [ErrorCode.VALIDATION_FAILED]: 'Los datos enviados no son válidos.',
+  [ErrorCode.TOO_MANY_REQUESTS]:
+    'Demasiados intentos en poco tiempo. Espera un minuto e intenta nuevamente.',
   [ErrorCode.INTERNAL_ERROR]: 'Ocurrió un error inesperado. Intenta nuevamente.',
 };

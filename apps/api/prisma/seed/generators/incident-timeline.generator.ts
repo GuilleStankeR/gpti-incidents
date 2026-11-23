@@ -4,6 +4,7 @@ import type { IncidentStatus as IncidentStatusValue } from '@incidents/shared';
 import { addHours, hoursBetween } from '@/common/time/date-math';
 import { incidentsCopy } from '@/modules/incidents/incidents.copy';
 
+import type { SeedIncident, SeedOutcome } from '../data/incidents/seed-incident.types';
 import { describeStep } from './timeline-steps';
 import type { TimelineContext } from './timeline-steps';
 import {
@@ -14,7 +15,6 @@ import {
   REJECTION_PATH,
   RESOLUTION_PATH,
 } from './timeline.constants';
-import type { SeedIncident, SeedOutcome } from '../data/incidents/seed-incident.types';
 
 const HOURS_PER_DAY = 24;
 

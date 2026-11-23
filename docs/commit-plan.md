@@ -48,7 +48,7 @@ verificación manual propia.
 | 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [x] |
 | 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [x] |
 | 33 | Entrega final | `feat(api): add database file storage adapter` | [x] |
-| 34 | Entrega final | `feat(root): prepare production deployment` | [ ] |
+| 34 | Entrega final | `feat(root): prepare production deployment` | [x] |
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [ ] |
 | 36 | Entrega final | `docs: add deployment guide and final checklist` | [ ] |
 
@@ -66,7 +66,7 @@ producción descritos en `CLAUDE.md` §2.1.
 |---|---|---|
 | Node.js | 22 LTS (`.nvmrc`), `engines >= 22` | La especificación pide 20 o superior; Node 20 ya no tiene soporte y parte del tooling exige 22 |
 | TypeScript | 5.9.x | typescript-eslint 8 no soporta TypeScript 6+ |
-| NestJS | 11.2.x (`@nestjs/cli` 11.0.x, `@nestjs/config` 4.x) | NestJS 10 arrastra vulnerabilidades sin parche (commit 07b) |
+| NestJS | 11.2.x (`@nestjs/cli` 12.0.x, `@nestjs/config` 4.x) | NestJS 10 arrastra vulnerabilidades sin parche (commit 07b); el CLI 11 depende de una versión vulnerable de `glob` (commit 34) |
 | Prisma / `@prisma/client` | 5.22.x | Especificación §4 |
 | PostgreSQL | imagen `postgres:16-alpine` | Especificación §4 |
 | React / React DOM | 18.3.x | Especificación §4 |
@@ -75,7 +75,7 @@ producción descritos en `CLAUDE.md` §2.1.
 | @tanstack/react-query | 5.x | Especificación §4 |
 | Tailwind CSS | 4.3.x con `@tailwindcss/vite` | Tailwind 3 depende de `braces`, vulnerable y sin versión corregida (commit 07b) |
 | ESLint | 9.39.x | Flat config; plugins aún no soportan todos ESLint 10 |
-| typescript-eslint | 8.x | Lint con información de tipos |
+| typescript-eslint | 8.73.x | Lint con información de tipos; desde 8.73 usa un `minimatch` sin vulnerabilidades (commit 34) |
 | eslint-plugin-unicorn | 62.x | Última versión compatible con ESLint 9 |
 | Prettier | 3.x | Formato |
 
@@ -1092,7 +1092,12 @@ visor de evidencia y PDF funcionan sin archivos en `apps/api/storage`; `UPDATE s
 - Web: `VITE_API_URL` opcional en el cliente HTTP (vacía → mismo origen con el proxy de Vite);
   `vite.config.ts` solo exige `API_PORT` al levantar el servidor de desarrollo.
 - `render.yaml` (PostgreSQL 16 gratis y servicio web Node 22) y `vercel.json` (build del monorepo
-  y redirección de rutas de la SPA a `index.html`); `.env.example` con las variables nuevas.
+  y redirección de rutas de la SPA a `index.html`); `.env.example` con las variables nuevas;
+  `scripts/ensure-env.mjs` agrega al `.env` existente las variables que falten.
+- Auditoría: avisos publicados después del commit 25 sobre `glob`, `minimatch` y `multer` obligan
+  a subir `@nestjs/common`, `@nestjs/core` y `@nestjs/platform-express` a 11.2.11, `@nestjs/cli` a
+  12.0.15, `typescript-eslint` a 8.73.0 y `eslint-plugin-import-x` a 4.18.1. Los cambios de reglas
+  que traen se resuelven en el código, sin tocar la configuración del lint.
 
 **Verificación:** build de producción local con las variables de producción; `GET /api/health`
 responde `ok`; el undécimo intento de login en un minuto recibe `TOO_MANY_REQUESTS`; una petición

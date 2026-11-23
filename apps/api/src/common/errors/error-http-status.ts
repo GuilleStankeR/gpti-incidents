@@ -16,6 +16,7 @@ export const ERROR_HTTP_STATUS: Readonly<Record<ErrorCode, HttpStatus>> = {
   [ErrorCode.INVALID_OCCURRED_AT]: HttpStatus.BAD_REQUEST,
   [ErrorCode.INVALID_FILE]: HttpStatus.BAD_REQUEST,
   [ErrorCode.VALIDATION_FAILED]: HttpStatus.BAD_REQUEST,
+  [ErrorCode.TOO_MANY_REQUESTS]: HttpStatus.TOO_MANY_REQUESTS,
   [ErrorCode.INTERNAL_ERROR]: HttpStatus.INTERNAL_SERVER_ERROR,
 };
 
@@ -25,4 +26,5 @@ export const FRAMEWORK_STATUS_ERROR_CODES: Readonly<Partial<Record<number, Error
   [HttpStatus.FORBIDDEN]: ErrorCode.FORBIDDEN_ROLE,
   [HttpStatus.NOT_FOUND]: ErrorCode.RESOURCE_NOT_FOUND,
   [HttpStatus.PAYLOAD_TOO_LARGE]: ErrorCode.INVALID_FILE,
+  [HttpStatus.TOO_MANY_REQUESTS]: ErrorCode.TOO_MANY_REQUESTS,
 };

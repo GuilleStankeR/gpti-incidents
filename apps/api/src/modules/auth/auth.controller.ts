@@ -1,4 +1,5 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import type { LoginResponse } from '@incidents/shared';
 
@@ -14,6 +15,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
+  @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   async login(@Body() credentials: LoginDto): Promise<LoginResponse> {
     return toLoginResponse(await this.authService.login(credentials));

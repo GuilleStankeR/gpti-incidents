@@ -1,10 +1,10 @@
 import type { PrismaClient } from '@prisma/client';
 
+import { HISTORICAL_INCIDENTS } from '../data/incidents/historical-incidents.data';
+import { buildIncidentTimeline } from '../generators/incident-timeline.generator';
 import { writeHistoricalIncident } from './incident-writer';
 import type { IncidentPlan } from './incident-writer';
 import type { SeedContext, SeedUser } from './seed-context';
-import { HISTORICAL_INCIDENTS } from '../data/incidents/historical-incidents.data';
-import { buildIncidentTimeline } from '../generators/incident-timeline.generator';
 
 async function loadUsersByEmail(
   prisma: PrismaClient,

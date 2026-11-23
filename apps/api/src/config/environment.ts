@@ -69,4 +69,18 @@ export class Environment {
 
   @IsTimeZone()
   readonly TIME_ZONE!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly CORS_ORIGINS!: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  readonly TRUST_PROXY_HOPS!: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  readonly LOGIN_MAX_ATTEMPTS_PER_MINUTE!: number;
 }

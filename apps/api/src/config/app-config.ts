@@ -8,6 +8,7 @@ import { parseDurationToSeconds } from './duration';
 import type { Environment } from './environment';
 import type { StorageDriver } from './storage-driver';
 
+const CORS_ORIGIN_SEPARATOR = ',';
 const BYTES_PER_KILOBYTE = 1024;
 const BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE;
 
@@ -54,5 +55,21 @@ export class AppConfig {
 
   get timeZone(): string {
     return this.configService.get('TIME_ZONE', { infer: true });
+  }
+
+  get corsOrigins(): readonly string[] {
+    return this.configService
+      .get('CORS_ORIGINS', { infer: true })
+      .split(CORS_ORIGIN_SEPARATOR)
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0);
+  }
+
+  get trustProxyHops(): number {
+    return this.configService.get('TRUST_PROXY_HOPS', { infer: true });
+  }
+
+  get loginMaxAttemptsPerMinute(): number {
+    return this.configService.get('LOGIN_MAX_ATTEMPTS_PER_MINUTE', { infer: true });
   }
 }

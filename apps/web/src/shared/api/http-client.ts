@@ -16,6 +16,7 @@ interface HttpClientHooks {
 }
 
 const API_BASE_PATH = '/api';
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
 const JSON_HEADERS: Readonly<Record<string, string>> = { 'Content-Type': 'application/json' };
 
 let hooks: HttpClientHooks | undefined;
@@ -35,7 +36,7 @@ function buildUrl(path: string, query: QueryParams = {}): string {
 
   const queryString = searchParams.toString();
   const basePath = path.startsWith(`${API_BASE_PATH}/`) ? path : `${API_BASE_PATH}${path}`;
-  return `${basePath}${queryString.length > 0 ? `?${queryString}` : ''}`;
+  return `${API_ORIGIN}${basePath}${queryString.length > 0 ? `?${queryString}` : ''}`;
 }
 
 function buildHeaders(extraHeaders: Readonly<Record<string, string>>): Headers {

@@ -8,10 +8,10 @@ import { saveImmutableFile } from '@/modules/storage/local-disk-files';
 import { buildStoragePath } from '@/modules/storage/storage-path';
 import { insertStoredFile } from '@/modules/storage/stored-file.repository';
 
-import type { UserLookup, WriterContext } from './seed-context';
 import { evidenceFileName } from '../data/seed-texts.data';
 import { generateEvidenceImage } from '../generators/evidence-image.generator';
 import type { EvidenceUpload } from '../generators/incident-timeline.generator';
+import type { UserLookup, WriterContext } from './seed-context';
 
 const JPEG_MIME_TYPE = 'image/jpeg';
 const JPEG_EXTENSION = 'jpg';

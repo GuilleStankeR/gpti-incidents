@@ -12,6 +12,7 @@ export type * from './contracts/audit-trail.contracts.js';
 export type * from './contracts/auth.contracts.js';
 export type * from './contracts/catalogs.contracts.js';
 export type * from './contracts/evidence.contracts.js';
+export type * from './contracts/health.contracts.js';
 export type * from './contracts/incidents.contracts.js';
 export type * from './contracts/metrics.contracts.js';
 export type * from './contracts/pagination.contracts.js';
