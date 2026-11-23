@@ -64,35 +64,38 @@ model Category {
   name     String
   slaHours Int    @map("sla_hours")
 
-  incidents Incident[]
+  incidents          Incident[] @relation("IncidentCategory")
+  suggestedIncidents Incident[] @relation("IncidentSuggestedCategory")
 
   @@map("category")
 }
 
 model Incident {
-  id              String         @id @default(uuid()) @db.Uuid
-  condominiumId   String         @map("condominium_id") @db.Uuid
-  folio           String
-  categoryCode    String         @map("category_code")
-  description     String
-  location        String
-  latitude        Decimal?       @db.Decimal(10, 7)
-  longitude       Decimal?       @db.Decimal(10, 7)
-  geocodedAddress String?        @map("geocoded_address")
-  occurredAt      DateTime       @map("occurred_at") @db.Timestamptz(3)
-  reportedAt      DateTime       @default(now()) @map("reported_at") @db.Timestamptz(3)
-  dueAt           DateTime       @map("due_at") @db.Timestamptz(3)
-  closedAt        DateTime?      @map("closed_at") @db.Timestamptz(3)
-  status          IncidentStatus @default(REPORTED)
-  reporterId      String         @map("reporter_id") @db.Uuid
-  assigneeId      String?        @map("assignee_id") @db.Uuid
+  id                    String         @id @default(uuid()) @db.Uuid
+  condominiumId         String         @map("condominium_id") @db.Uuid
+  folio                 String
+  categoryCode          String         @map("category_code")
+  description           String
+  location              String
+  latitude              Decimal?       @db.Decimal(10, 7)
+  longitude             Decimal?       @db.Decimal(10, 7)
+  geocodedAddress       String?        @map("geocoded_address")
+  occurredAt            DateTime       @map("occurred_at") @db.Timestamptz(3)
+  reportedAt            DateTime       @default(now()) @map("reported_at") @db.Timestamptz(3)
+  dueAt                 DateTime       @map("due_at") @db.Timestamptz(3)
+  closedAt              DateTime?      @map("closed_at") @db.Timestamptz(3)
+  status                IncidentStatus @default(REPORTED)
+  reporterId            String         @map("reporter_id") @db.Uuid
+  assigneeId            String?        @map("assignee_id") @db.Uuid
+  suggestedCategoryCode String?        @map("suggested_category_code")
 
-  condominium Condominium  @relation(fields: [condominiumId], references: [id])
-  category    Category     @relation(fields: [categoryCode], references: [code])
-  reporter    User         @relation("IncidentReporter", fields: [reporterId], references: [id])
-  assignee    User?        @relation("IncidentAssignee", fields: [assigneeId], references: [id])
-  evidence    Evidence[]
-  auditTrail  AuditEntry[]
+  condominium       Condominium  @relation(fields: [condominiumId], references: [id])
+  category          Category     @relation("IncidentCategory", fields: [categoryCode], references: [code])
+  suggestedCategory Category?    @relation("IncidentSuggestedCategory", fields: [suggestedCategoryCode], references: [code])
+  reporter          User         @relation("IncidentReporter", fields: [reporterId], references: [id])
+  assignee          User?        @relation("IncidentAssignee", fields: [assigneeId], references: [id])
+  evidence          Evidence[]
+  auditTrail        AuditEntry[]
 
   @@unique([condominiumId, folio])
   @@index([condominiumId, status])

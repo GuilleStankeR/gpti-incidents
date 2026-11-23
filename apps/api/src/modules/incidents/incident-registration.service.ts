@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import type { Category } from '@prisma/client';
 
-import { ErrorCode } from '@incidents/shared';
+import { ErrorCode, suggestCategory } from '@incidents/shared';
 import type { CreateIncidentRequest } from '@incidents/shared';
 
 import type { AuthenticatedUser } from '@/common/auth/authenticated-user';
@@ -71,6 +71,7 @@ export class IncidentRegistrationService {
       reportedAt,
       dueAt: calculateDueAt(reportedAt, category.slaHours),
       reporterId: user.id,
+      suggestedCategoryCode: suggestCategory(input)?.categoryCode ?? null,
     };
   }
 

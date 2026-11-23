@@ -28,6 +28,7 @@ export interface IncidentDraft {
   readonly reportedAt: Date;
   readonly dueAt: Date;
   readonly reporterId: string;
+  readonly suggestedCategoryCode: string | null;
 }
 
 export interface IncidentRegistration {

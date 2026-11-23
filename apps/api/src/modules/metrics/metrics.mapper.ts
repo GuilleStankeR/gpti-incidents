@@ -2,6 +2,7 @@ import type { CategoryCount, MetricsResponse } from '@incidents/shared';
 
 import {
   averageResolutionHours,
+  percentCategorySuggestionsAccepted,
   percentWithEvidenceAtClosure,
   percentWithinSla,
   tallyByStatus,
@@ -33,6 +34,9 @@ export function toMetricsResponse({ period, facts }: MetricsSnapshot): MetricsRe
     averageResolutionHours: averageResolutionHours(facts.closedIncidents),
     percentWithinSla: percentWithinSla(facts.closedIncidents),
     percentWithEvidenceAtClosure: percentWithEvidenceAtClosure(facts.closedIncidents),
+    percentCategorySuggestionsAccepted: percentCategorySuggestionsAccepted(
+      facts.categorySuggestions,
+    ),
     openOverdue: facts.openOverdue,
   };
 }

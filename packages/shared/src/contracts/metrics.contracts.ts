@@ -23,5 +23,6 @@ export interface MetricsResponse {
   readonly averageResolutionHours: number | null;
   readonly percentWithinSla: number | null;
   readonly percentWithEvidenceAtClosure: number | null;
+  readonly percentCategorySuggestionsAccepted: number | null;
   readonly openOverdue: number;
 }

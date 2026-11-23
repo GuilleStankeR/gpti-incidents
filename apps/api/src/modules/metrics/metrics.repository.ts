@@ -5,7 +5,11 @@ import { IncidentStatus, TERMINAL_STATUSES } from '@incidents/shared';
 
 import { PrismaService } from '@/database/prisma.service';
 
-import type { ClosedIncidentFacts, StatusCount } from './domain/metrics-calculator';
+import type {
+  CategorySuggestionFacts,
+  ClosedIncidentFacts,
+  StatusCount,
+} from './domain/metrics-calculator';
 
 export interface MetricsPeriodRange {
   readonly from: Date;
@@ -23,6 +27,7 @@ export interface MetricsFacts {
   readonly categoryCounts: readonly CategoryTally[];
   readonly categories: readonly Category[];
   readonly closedIncidents: readonly ClosedIncidentFacts[];
+  readonly categorySuggestions: readonly CategorySuggestionFacts[];
   readonly openOverdue: number;
 }
 
@@ -41,15 +46,23 @@ export class MetricsRepository {
       condominiumId,
       reportedAt: { gte: period.from, lte: period.to },
     };
-    const [totalIncidents, statusCounts, categoryCounts, categories, closedIncidents, openOverdue] =
-      await Promise.all([
-        this.prisma.incident.count({ where: inPeriod }),
-        this.countByStatus(inPeriod),
-        this.countByCategory(inPeriod),
-        this.prisma.category.findMany({ orderBy: { name: 'asc' } }),
-        this.findClosedFacts(inPeriod),
-        this.countOpenOverdue(inPeriod, now),
-      ]);
+    const [
+      totalIncidents,
+      statusCounts,
+      categoryCounts,
+      categories,
+      closedIncidents,
+      categorySuggestions,
+      openOverdue,
+    ] = await Promise.all([
+      this.prisma.incident.count({ where: inPeriod }),
+      this.countByStatus(inPeriod),
+      this.countByCategory(inPeriod),
+      this.prisma.category.findMany({ orderBy: { name: 'asc' } }),
+      this.findClosedFacts(inPeriod),
+      this.findCategorySuggestions(inPeriod),
+      this.countOpenOverdue(inPeriod, now),
+    ]);
 
     return {
       totalIncidents,
@@ -57,6 +70,7 @@ export class MetricsRepository {
       categoryCounts,
       categories,
       closedIncidents,
+      categorySuggestions,
       openOverdue,
     };
   }
@@ -98,6 +112,13 @@ export class MetricsRepository {
       dueAt: incident.dueAt,
       evidenceCount: incident._count.evidence,
     }));
+  }
+
+  private async findCategorySuggestions(where: IncidentFilter): Promise<CategorySuggestionFacts[]> {
+    return this.prisma.incident.findMany({
+      where: { ...where, suggestedCategoryCode: { not: null } },
+      select: { categoryCode: true, suggestedCategoryCode: true },
+    });
   }
 
   private async countOpenOverdue(where: IncidentFilter, now: Date): Promise<number> {

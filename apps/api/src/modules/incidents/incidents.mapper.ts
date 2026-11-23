@@ -1,6 +1,12 @@
 import type { Category, Incident, User } from '@prisma/client';
 
-import type { IncidentDetail, IncidentSummary, PaginatedResponse, Role } from '@incidents/shared';
+import type {
+  CategorySummary,
+  IncidentDetail,
+  IncidentSummary,
+  PaginatedResponse,
+  Role,
+} from '@incidents/shared';
 
 import { toEvidenceItem } from '@/modules/evidence/evidence.mapper';
 import { toUserSummary } from '@/modules/users/users.mapper';
@@ -17,6 +23,10 @@ export type IncidentSummaryEntity = Incident & {
   readonly assignee: User | null;
 };
 
+function toCategorySummary(category: Category): CategorySummary {
+  return { code: category.code, name: category.name };
+}
+
 export function toIncidentSummary(
   incident: IncidentSummaryEntity,
   evidenceCount: number,
@@ -25,7 +35,7 @@ export function toIncidentSummary(
   return {
     id: incident.id,
     folio: incident.folio,
-    category: { code: incident.category.code, name: incident.category.name },
+    category: toCategorySummary(incident.category),
     description: incident.description,
     location: incident.location,
     status: incident.status,
@@ -52,6 +62,8 @@ export function toIncidentDetail(
     latitude: incident.latitude?.toNumber() ?? null,
     longitude: incident.longitude?.toNumber() ?? null,
     geocodedAddress: incident.geocodedAddress,
+    suggestedCategory:
+      incident.suggestedCategory === null ? null : toCategorySummary(incident.suggestedCategory),
     availableTransitions: getAvailableTransitions(incident.status, viewerRole),
     evidence: incident.evidence.map(toEvidenceItem),
     auditTrail: incident.auditTrail.map(toAuditEntryItem),

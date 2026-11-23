@@ -13,6 +13,11 @@ export interface ClosedIncidentFacts {
   readonly evidenceCount: number;
 }
 
+export interface CategorySuggestionFacts {
+  readonly categoryCode: string;
+  readonly suggestedCategoryCode: string | null;
+}
+
 export interface StatusCount {
   readonly status: IncidentStatus;
   readonly count: number;
@@ -60,4 +65,14 @@ export function percentWithEvidenceAtClosure(
 ): number | null {
   const withEvidence = closed.filter((incident) => incident.evidenceCount > 0);
   return toPercentage(withEvidence.length, closed.length);
+}
+
+export function percentCategorySuggestionsAccepted(
+  incidents: readonly CategorySuggestionFacts[],
+): number | null {
+  const suggested = incidents.filter((incident) => incident.suggestedCategoryCode !== null);
+  const accepted = suggested.filter(
+    (incident) => incident.suggestedCategoryCode === incident.categoryCode,
+  );
+  return toPercentage(accepted.length, suggested.length);
 }

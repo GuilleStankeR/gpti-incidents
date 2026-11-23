@@ -8,6 +8,7 @@ import type { VisibilityScope } from './domain/visibility';
 
 const INCIDENT_DETAIL_INCLUDE = {
   category: true,
+  suggestedCategory: true,
   reporter: true,
   assignee: true,
   evidence: { include: { uploadedBy: true }, orderBy: { createdAt: 'asc' } },

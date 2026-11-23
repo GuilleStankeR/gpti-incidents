@@ -29,6 +29,7 @@ export interface IncidentDetail extends IncidentSummary {
   readonly latitude: number | null;
   readonly longitude: number | null;
   readonly geocodedAddress: string | null;
+  readonly suggestedCategory: CategorySummary | null;
   readonly availableTransitions: readonly IncidentStatus[];
   readonly evidence: readonly EvidenceItem[];
   readonly auditTrail: readonly AuditEntryItem[];
