@@ -9,6 +9,8 @@ jobs:
   verify:
     name: Lint, types, build and audit
     runs-on: ubuntu-latest
+    env:
+      TIME_ZONE: America/Santiago
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
