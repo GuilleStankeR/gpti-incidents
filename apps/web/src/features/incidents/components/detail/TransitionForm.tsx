@@ -26,6 +26,7 @@ export function TransitionForm({ incidentId, target, onDone }: TransitionFormPro
         <AssigneeSelect
           value={fields.assigneeId}
           error={fields.errors.assigneeId}
+          suggestion={form.assigneeSuggestion}
           onChange={fields.setAssigneeId}
         />
       ) : null}

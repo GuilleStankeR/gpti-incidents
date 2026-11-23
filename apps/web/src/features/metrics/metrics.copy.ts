@@ -26,6 +26,10 @@ export const metricsCopy = {
       helper: 'El sistema no permite cerrar sin fotografías.',
     },
   },
+  suggestionAccuracy: {
+    label: 'Sugerencias de categoría aceptadas',
+    helper: 'Incidentes cuya categoría final coincide con la sugerida automáticamente al reportar.',
+  },
   hours: (value: string): string => `${value} h`,
   percentage: (value: string): string => `${value} %`,
   overdueNotice: (count: number): string =>

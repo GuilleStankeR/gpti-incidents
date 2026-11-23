@@ -9,6 +9,7 @@ import { InlineAlert } from '@/shared/ui/InlineAlert';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { MetricsSummary } from './MetricsSummary';
 import { StatusBreakdown } from './StatusBreakdown';
+import { SuggestionAccuracyCard } from './SuggestionAccuracyCard';
 
 interface MetricsDashboardProps {
   readonly metrics: MetricsResponse;
@@ -21,6 +22,7 @@ export function MetricsDashboard({ metrics }: MetricsDashboardProps): ReactEleme
         {metricsCopy.period(formatDate(metrics.period.from), formatDate(metrics.period.to))}
       </p>
       <MetricsSummary metrics={metrics} />
+      <SuggestionAccuracyCard percentage={metrics.percentCategorySuggestionsAccepted} />
       {metrics.openOverdue > 0 ? (
         <InlineAlert tone="warning">{metricsCopy.overdueNotice(metrics.openOverdue)}</InlineAlert>
       ) : null}

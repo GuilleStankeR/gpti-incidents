@@ -5,6 +5,8 @@ export const incidentsKeys = {
   lists: () => [...incidentsKeys.all, 'list'] as const,
   list: (query: ListIncidentsQuery) => [...incidentsKeys.lists(), query] as const,
   detail: (incidentId: string) => [...incidentsKeys.all, 'detail', incidentId] as const,
+  assigneeSuggestion: (incidentId: string) =>
+    [...incidentsKeys.all, 'assignee-suggestion', incidentId] as const,
 };
 
 export const catalogsKeys = {

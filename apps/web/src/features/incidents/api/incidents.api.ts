@@ -1,4 +1,5 @@
 import type {
+  AssigneeSuggestionResponse,
   IncidentDetail,
   IncidentSummary,
   ListIncidentsQuery,
@@ -86,4 +87,12 @@ export async function downloadCaseFile(incidentId: string): Promise<Blob> {
 
 export async function getEvidenceFile(url: string): Promise<Blob> {
   return httpClient.getBlob(url);
+}
+
+export async function getAssigneeSuggestion(
+  incidentId: string,
+): Promise<AssigneeSuggestionResponse> {
+  return httpClient.get<AssigneeSuggestionResponse>(
+    `${INCIDENTS_PATH}/${incidentId}/assignee-suggestion`,
+  );
 }

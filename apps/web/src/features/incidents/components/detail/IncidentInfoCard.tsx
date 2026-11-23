@@ -8,6 +8,8 @@ import { Card } from '@/shared/ui/Card';
 import { DescriptionList } from '@/shared/ui/DescriptionList';
 import type { DescriptionItem } from '@/shared/ui/DescriptionList';
 
+import { IncidentCategoryValue } from './IncidentCategoryValue';
+
 interface IncidentInfoCardProps {
   readonly incident: IncidentDetail;
 }
@@ -20,7 +22,7 @@ function buildItems(incident: IncidentDetail): DescriptionItem[] {
       : [{ label: copy.closedAt, value: formatDateTime(incident.closedAt) }];
 
   return [
-    { label: copy.category, value: incident.category.name },
+    { label: copy.category, value: <IncidentCategoryValue incident={incident} /> },
     { label: copy.location, value: incident.location },
     { label: copy.occurredAt, value: formatDateTime(incident.occurredAt) },
     { label: copy.reportedAt, value: formatDateTime(incident.reportedAt) },

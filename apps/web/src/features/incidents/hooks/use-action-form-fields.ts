@@ -30,17 +30,21 @@ function collectErrors(
   };
 }
 
-export function useActionFormFields(requiresAssignee: boolean): ActionFormFields {
+export function useActionFormFields(
+  requiresAssignee: boolean,
+  suggestedAssigneeId: string | null = null,
+): ActionFormFields {
   const [note, setNote] = useState('');
-  const [assigneeId, setAssigneeId] = useState('');
+  const [chosenAssigneeId, setChosenAssigneeId] = useState<string | null>(null);
   const [errors, setErrors] = useState<ActionFieldErrors>({});
+  const assigneeId = chosenAssigneeId ?? suggestedAssigneeId ?? '';
 
   return {
     note,
     assigneeId,
     errors,
     setNote,
-    setAssigneeId,
+    setAssigneeId: setChosenAssigneeId,
     validate: () => {
       const nextErrors = collectErrors(note, assigneeId, requiresAssignee);
       setErrors(nextErrors);

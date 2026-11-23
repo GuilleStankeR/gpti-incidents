@@ -22,6 +22,8 @@ export const incidentDetailCopy = {
     reporter: 'Reportante',
     assignee: 'Responsable',
     unassigned: 'Sin responsable asignado',
+    suggestedCategory: 'Sugerida automáticamente',
+    differentSuggestion: (name: string): string => `La sugerencia automática era «${name}».`,
     description: 'Descripción',
   },
   map: {
@@ -64,6 +66,16 @@ export const incidentDetailCopy = {
     noteTooShort: (minimum: number): string =>
       `La observación debe tener al menos ${String(minimum)} caracteres.`,
     assigneeRequired: 'Selecciona un responsable.',
+    assigneeSuggestion: {
+      applied: (cases: string, open: string, days: number): string =>
+        `Sugerido automáticamente: cerró ${cases} de esta categoría en los últimos ${String(days)} días y tiene ${open}.`,
+      overridden: (name: string, cases: string, open: string): string =>
+        `La sugerencia era ${name}: cerró ${cases} de esta categoría y tiene ${open}.`,
+      closedCases: (count: number): string => (count === 1 ? '1 caso' : `${String(count)} casos`),
+      openCases: (count: number): string =>
+        count === 1 ? '1 caso abierto' : `${String(count)} casos abiertos`,
+      apply: 'Usar sugerencia',
+    },
   },
   evidence: {
     title: 'Evidencia fotográfica',

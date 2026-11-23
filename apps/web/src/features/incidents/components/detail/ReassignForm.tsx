@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 
 import { useActionFormFields } from '@/features/incidents/hooks/use-action-form-fields';
+import { useAssigneeSuggestion } from '@/features/incidents/hooks/use-assignee-suggestion';
 import { useReassignIncident } from '@/features/incidents/hooks/use-incident-mutations';
 import { incidentDetailCopy } from '@/features/incidents/incident-detail.copy';
 import { getErrorMessage } from '@/shared/api/error-message';
@@ -15,7 +16,8 @@ interface ReassignFormProps {
 }
 
 export function ReassignForm({ incidentId, onDone }: ReassignFormProps): ReactElement {
-  const fields = useActionFormFields(true);
+  const suggestion = useAssigneeSuggestion(incidentId, true);
+  const fields = useActionFormFields(true, suggestion?.assignee.id ?? null);
   const mutation = useReassignIncident(incidentId);
 
   return (
@@ -36,6 +38,7 @@ export function ReassignForm({ incidentId, onDone }: ReassignFormProps): ReactEl
       <AssigneeSelect
         value={fields.assigneeId}
         error={fields.errors.assigneeId}
+        suggestion={suggestion}
         onChange={fields.setAssigneeId}
       />
       <NoteField value={fields.note} error={fields.errors.note} onChange={fields.setNote} />

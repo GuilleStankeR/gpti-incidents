@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
+import { ASSIGNEE_EXPERIENCE_WINDOW_DAYS } from '@incidents/shared';
+
 import type { AuthenticatedUser } from '@/common/auth/authenticated-user';
 import { subtractDays } from '@/common/time/date-math';
 import { UsersRepository } from '@/modules/users/users.repository';
@@ -7,7 +9,6 @@ import { UsersRepository } from '@/modules/users/users.repository';
 import { AssigneeSuggestionRepository } from './assignee-suggestion.repository';
 import { pickSuggestedAssignee } from './domain/assignee-suggestion';
 import type { AssigneeCandidate } from './domain/assignee-suggestion';
-import { ASSIGNEE_EXPERIENCE_WINDOW_DAYS } from './domain/domain.constants';
 import { IncidentsService } from './incidents.service';
 
 @Injectable()
