@@ -47,7 +47,7 @@ verificación manual propia.
 | 30 | Entrega final | `feat(web): suggest category while reporting` | [x] |
 | 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [x] |
 | 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [x] |
-| 33 | Entrega final | `feat(api): add database file storage adapter` | [ ] |
+| 33 | Entrega final | `feat(api): add database file storage adapter` | [x] |
 | 34 | Entrega final | `feat(root): prepare production deployment` | [ ] |
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [ ] |
 | 36 | Entrega final | `docs: add deployment guide and final checklist` | [ ] |

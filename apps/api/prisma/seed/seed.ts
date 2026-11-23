@@ -23,6 +23,7 @@ async function seed(): Promise<void> {
     const createdIncidents = await seedHistoricalIncidents(prisma, {
       condominiumId: condominium.id,
       condominiumCode: condominium.code,
+      storageDriver: environment.STORAGE_DRIVER,
       storageDirectory: resolve(environment.STORAGE_DIR),
       timeZone: environment.TIME_ZONE,
       now: new Date(),

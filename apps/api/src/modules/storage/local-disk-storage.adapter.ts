@@ -3,12 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { AppConfig } from '@/config/app-config';
 
 import type { FileStorage } from './file-storage.port';
-import {
-  buildStoragePath,
-  readStoredFile,
-  removeStoredFile,
-  saveImmutableFile,
-} from './local-disk-files';
+import { readStoredFile, removeStoredFile, saveImmutableFile } from './local-disk-files';
+import { buildStoragePath } from './storage-path';
 
 @Injectable()
 export class LocalDiskStorageAdapter implements FileStorage {

@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import type { JwtSettings, NominatimSettings, UploadSettings } from './app-config.types';
 import { parseDurationToSeconds } from './duration';
 import type { Environment } from './environment';
+import type { StorageDriver } from './storage-driver';
 
 const BYTES_PER_KILOBYTE = 1024;
 const BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * BYTES_PER_KILOBYTE;
@@ -25,6 +26,10 @@ export class AppConfig {
         this.configService.get('JWT_EXPIRES_IN', { infer: true }),
       ),
     };
+  }
+
+  get storageDriver(): StorageDriver {
+    return this.configService.get('STORAGE_DRIVER', { infer: true });
   }
 
   get storageDirectory(): string {

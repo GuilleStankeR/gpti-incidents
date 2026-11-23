@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsPositive,
@@ -13,6 +14,7 @@ import {
 } from 'class-validator';
 
 import { DURATION_PATTERN } from './duration';
+import { StorageDriver } from './storage-driver';
 
 const MIN_TCP_PORT = 1;
 const MAX_TCP_PORT = 65_535;
@@ -35,6 +37,9 @@ export class Environment {
   @Min(MIN_TCP_PORT)
   @Max(MAX_TCP_PORT)
   readonly API_PORT!: number;
+
+  @IsIn(Object.values(StorageDriver))
+  readonly STORAGE_DRIVER!: StorageDriver;
 
   @IsString()
   @IsNotEmpty()

@@ -1,12 +1,8 @@
 import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, posix, resolve, sep } from 'node:path';
+import { dirname, resolve, sep } from 'node:path';
 
 const READ_ONLY_FILE_MODE = 0o444;
 const CREATE_EXCLUSIVE_FLAG = 'wx';
-
-export function buildStoragePath(directory: string, fileName: string): string {
-  return posix.join(directory, fileName);
-}
 
 function resolveInsideRoot(rootDirectory: string, storagePath: string): string {
   const absolutePath = resolve(rootDirectory, storagePath);

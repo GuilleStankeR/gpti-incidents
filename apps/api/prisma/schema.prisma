@@ -147,3 +147,11 @@ model FolioCounter {
   @@id([condominiumId, year])
   @@map("folio_counter")
 }
+
+model StoredFile {
+  storagePath String   @id @map("storage_path")
+  content     Bytes
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("stored_file")
+}

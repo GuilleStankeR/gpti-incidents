@@ -3,7 +3,10 @@ import { randomUUID } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 
 import { calculateSha256 } from '@/common/files/sha256';
-import { buildStoragePath, saveImmutableFile } from '@/modules/storage/local-disk-files';
+import { StorageDriver } from '@/config/storage-driver';
+import { saveImmutableFile } from '@/modules/storage/local-disk-files';
+import { buildStoragePath } from '@/modules/storage/storage-path';
+import { insertStoredFile } from '@/modules/storage/stored-file.repository';
 
 import type { UserLookup, WriterContext } from './seed-context';
 import { evidenceFileName } from '../data/seed-texts.data';
@@ -35,11 +38,28 @@ function expandUploads(
   );
 }
 
+type EvidenceWriterContext = WriterContext & { readonly writtenPaths: string[] };
+
+async function storeEvidenceFile(
+  transaction: Prisma.TransactionClient,
+  storagePath: string,
+  content: Buffer,
+  context: EvidenceWriterContext,
+): Promise<void> {
+  if (context.storageDriver === StorageDriver.DATABASE) {
+    await insertStoredFile(transaction, storagePath, content);
+    return;
+  }
+
+  await saveImmutableFile(context.storageDirectory, storagePath, content);
+  context.writtenPaths.push(storagePath);
+}
+
 export async function writeEvidence(
   transaction: Prisma.TransactionClient,
   target: EvidenceTarget,
   uploads: readonly EvidenceUpload[],
-  context: WriterContext & { readonly writtenPaths: string[] },
+  context: EvidenceWriterContext,
 ): Promise<void> {
   const pendingEvidence = expandUploads(uploads, context.findUser);
   const rows: Prisma.EvidenceCreateManyInput[] = [];
@@ -48,8 +68,7 @@ export async function writeEvidence(
     const position = index + 1;
     const image = await generateEvidenceImage(target.folio, position, pendingEvidence.length);
     const storagePath = buildStoragePath(target.incidentId, `${randomUUID()}.${JPEG_EXTENSION}`);
-    await saveImmutableFile(context.storageDirectory, storagePath, image);
-    context.writtenPaths.push(storagePath);
+    await storeEvidenceFile(transaction, storagePath, image, context);
     rows.push({
       ...pending,
       incidentId: target.incidentId,
