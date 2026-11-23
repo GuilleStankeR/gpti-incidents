@@ -22,7 +22,7 @@ export function BottomNavigation({ items }: BottomNavigationProps): ReactElement
   return (
     <nav
       aria-label={commonCopy.navigation.label}
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden"
     >
       <div className="mx-auto flex max-w-md">
         {items.map((item) => (

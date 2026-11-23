@@ -21,7 +21,19 @@ const METRICS_ITEM: NavigationItem = {
   icon: 'chart',
 };
 
+const QR_CODES_ITEM: NavigationItem = {
+  to: ROUTE_PATHS.qrCodes,
+  label: commonCopy.navigation.qrCodes,
+  icon: 'qrCode',
+};
+
 export function useNavigationItems(): readonly NavigationItem[] {
   const canViewMetrics = useCapability(Capability.VIEW_METRICS);
-  return canViewMetrics ? [...BASE_ITEMS, METRICS_ITEM] : BASE_ITEMS;
+  const canGenerateQrCodes = useCapability(Capability.GENERATE_QR_CODES);
+
+  return [
+    ...BASE_ITEMS,
+    ...(canViewMetrics ? [METRICS_ITEM] : []),
+    ...(canGenerateQrCodes ? [QR_CODES_ITEM] : []),
+  ];
 }

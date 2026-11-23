@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 import type { DemoAccount } from '@/features/auth/auth.copy';
 import { getErrorMessage } from '@/shared/api/error-message';
-import { ROUTE_PATHS } from '@/shared/routing/route-paths';
 
 import { useAuth } from './use-auth';
+import { useLoginRedirectPath } from './use-login-redirect-path';
 
 export interface LoginFormState {
   readonly email: string;
@@ -23,11 +23,12 @@ export interface LoginFormState {
 export function useLoginForm(): LoginFormState {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const redirectPath = useLoginRedirectPath();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: async () => navigate(ROUTE_PATHS.incidents, { replace: true }),
+    onSuccess: async () => navigate(redirectPath, { replace: true }),
   });
 
   return {

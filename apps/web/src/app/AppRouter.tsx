@@ -7,6 +7,7 @@ import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { InboxPage } from '@/features/incidents/pages/InboxPage';
 import { IncidentDetailPage } from '@/features/incidents/pages/IncidentDetailPage';
+import { QrCodesPage } from '@/features/incidents/pages/QrCodesPage';
 import { ReportIncidentPage } from '@/features/incidents/pages/ReportIncidentPage';
 import { MetricsPage } from '@/features/metrics/pages/MetricsPage';
 import { ROUTE_PATHS } from '@/shared/routing/route-paths';
@@ -29,6 +30,9 @@ export function AppRouter(): ReactElement {
           <Route path={ROUTE_PATHS.incidentDetail} element={<IncidentDetailPage />} />
           <Route element={<ProtectedRoute requiredCapability={Capability.VIEW_METRICS} />}>
             <Route path={ROUTE_PATHS.metrics} element={<MetricsPage />} />
+          </Route>
+          <Route element={<ProtectedRoute requiredCapability={Capability.GENERATE_QR_CODES} />}>
+            <Route path={ROUTE_PATHS.qrCodes} element={<QrCodesPage />} />
           </Route>
         </Route>
       </Route>

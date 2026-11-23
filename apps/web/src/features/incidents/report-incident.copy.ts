@@ -73,6 +73,12 @@ export const reportIncidentCopy = {
       `La fecha del hecho no puede ser de hace más de ${String(days)} días.`,
     reviewFields: 'Revisa los campos marcados antes de continuar.',
   },
+  prefill: {
+    fromQrCode: (location: string): string =>
+      `Llegaste desde un código QR: la ubicación «${location}» quedó preseleccionada. Puedes cambiarla.`,
+    otherCondominium:
+      'Este código QR pertenece a otro condominio. Revisa la ubicación antes de reportar.',
+  },
   duplicates: {
     title: 'Posible incidente duplicado',
     visibleIntro: (hours: number): string =>

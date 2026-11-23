@@ -55,7 +55,7 @@ verificación manual propia.
 | 38 | Solicitudes de cambio | `docs: plan change requests 1 and 2` | [x] |
 | 39 | Solicitudes de cambio | `feat(api): add possible duplicates endpoint` | [x] |
 | 40 | Solicitudes de cambio | `feat(web): warn about possible duplicates while reporting` | [x] |
-| 41 | Solicitudes de cambio | `feat(web): generate report qr codes per condominium and location` | [ ] |
+| 41 | Solicitudes de cambio | `feat(web): generate report qr codes per condominium and location` | [x] |
 | 42 | Solicitudes de cambio | `docs: document change requests` | [ ] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base

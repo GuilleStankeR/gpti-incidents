@@ -15,6 +15,7 @@ export const commonCopy = {
     inbox: 'Bandeja',
     report: 'Reportar',
     metrics: 'Métricas',
+    qrCodes: 'Códigos QR',
   },
   session: {
     logout: 'Cerrar sesión',

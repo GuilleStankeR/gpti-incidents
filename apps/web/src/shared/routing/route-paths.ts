@@ -7,6 +7,7 @@ export const ROUTE_PATHS = {
   newIncident: '/incidents/new',
   incidentDetail: '/incidents/:incidentId',
   metrics: '/metrics',
+  qrCodes: '/qr-codes',
   notFound: '*',
 } as const;
 

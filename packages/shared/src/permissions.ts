@@ -6,6 +6,7 @@ export const Capability = {
   MANAGE_ASSIGNMENTS: 'MANAGE_ASSIGNMENTS',
   DOWNLOAD_CASE_FILE: 'DOWNLOAD_CASE_FILE',
   VIEW_METRICS: 'VIEW_METRICS',
+  GENERATE_QR_CODES: 'GENERATE_QR_CODES',
 } as const;
 
 export type Capability = (typeof Capability)[keyof typeof Capability];
@@ -18,6 +19,7 @@ export const ROLE_CAPABILITIES: Readonly<Record<Role, readonly Capability[]>> = 
     Capability.MANAGE_ASSIGNMENTS,
     Capability.DOWNLOAD_CASE_FILE,
     Capability.VIEW_METRICS,
+    Capability.GENERATE_QR_CODES,
   ],
 };
 

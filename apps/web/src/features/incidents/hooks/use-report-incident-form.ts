@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 
 import type { CatalogsResponse } from '@incidents/shared';
 
+import type { NewIncidentInput } from '@/features/incidents/api/incidents.api';
 import { getErrorMessage } from '@/shared/api/error-message';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '@/shared/lib/datetime-local';
 
@@ -32,16 +33,35 @@ export interface ReportIncidentFormState {
   readonly submit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-function createInitialValues(): ReportTextValues {
+function createInitialValues(location: string): ReportTextValues {
   return {
     description: '',
-    location: '',
+    location,
     occurredAt: toDateTimeLocalValue(new Date()),
   };
 }
 
-export function useReportIncidentForm(catalogs: CatalogsResponse): ReportIncidentFormState {
-  const [textValues, setTextValues] = useState<ReportTextValues>(createInitialValues);
+function toNewIncidentInput(
+  values: ReportIncidentValues,
+  geolocation: GeolocationState,
+  photos: PhotoSelectionState,
+): NewIncidentInput {
+  return {
+    ...values,
+    description: values.description.trim(),
+    occurredAt: fromDateTimeLocalValue(values.occurredAt).toISOString(),
+    coordinates: geolocation.coordinates,
+    photos: photos.photos.map((photo) => photo.file),
+  };
+}
+
+export function useReportIncidentForm(
+  catalogs: CatalogsResponse,
+  initialLocation: string,
+): ReportIncidentFormState {
+  const [textValues, setTextValues] = useState<ReportTextValues>(() =>
+    createInitialValues(initialLocation),
+  );
   const [validatedAt, setValidatedAt] = useState<Date | null>(null);
   const category = useCategorySuggestion(textValues);
   const geolocation = useGeolocation();
@@ -67,13 +87,7 @@ export function useReportIncidentForm(catalogs: CatalogsResponse): ReportInciden
       if (hasErrors(validateReportIncident(values, now))) {
         return;
       }
-      createMutation.mutate({
-        ...values,
-        description: values.description.trim(),
-        occurredAt: fromDateTimeLocalValue(values.occurredAt).toISOString(),
-        coordinates: geolocation.coordinates,
-        photos: photos.photos.map((photo) => photo.file),
-      });
+      createMutation.mutate(toNewIncidentInput(values, geolocation, photos));
     },
   };
 }

@@ -6,16 +6,17 @@ import { LoginBrandPanel } from '@/features/auth/components/LoginBrandPanel';
 import { LoginForm } from '@/features/auth/components/LoginForm';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useLoginForm } from '@/features/auth/hooks/use-login-form';
+import { useLoginRedirectPath } from '@/features/auth/hooks/use-login-redirect-path';
 import { commonCopy } from '@/shared/copy/common.copy';
-import { ROUTE_PATHS } from '@/shared/routing/route-paths';
 import { Icon } from '@/shared/ui/icons/Icon';
 
 export function LoginPage(): ReactElement {
   const { session } = useAuth();
   const form = useLoginForm();
+  const redirectPath = useLoginRedirectPath();
 
   if (session !== null) {
-    return <Navigate to={ROUTE_PATHS.incidents} replace />;
+    return <Navigate to={redirectPath} replace />;
   }
 
   return (
