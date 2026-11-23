@@ -1,3 +1,5 @@
+export * from './category-code.js';
+export * from './classification/category-classifier.js';
 export * from './date-format.js';
 export * from './error-code.js';
 export * from './incident-status.js';
