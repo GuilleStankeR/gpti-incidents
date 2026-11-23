@@ -14,7 +14,7 @@ export const CLOSED_INCIDENTS_SECOND_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.concierge,
+      assigneeEmail: DEMO_EMAILS.secondConcierge,
       resolutionHours: 26,
       resolution:
         'Se reemplazó el sensor crepuscular y un relé defectuoso del tablero de iluminación común.',
@@ -33,7 +33,7 @@ export const CLOSED_INCIDENTS_SECOND_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.secondConcierge,
+      assigneeEmail: DEMO_EMAILS.concierge,
       resolutionHours: 12,
       resolution: 'Se destapó el desagüe con equipo de alta presión y se sanitizó la sala.',
       photosBeforeClosure: 1,
@@ -70,7 +70,7 @@ export const CLOSED_INCIDENTS_SECOND_BATCH: readonly SeedIncident[] = [
     hasCoordinates: true,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.concierge,
+      assigneeEmail: DEMO_EMAILS.secondConcierge,
       resolutionHours: 60,
       resolution: 'Se limpió el grafiti con hidrolavadora y se repintó el sector afectado.',
       photosBeforeClosure: 0,

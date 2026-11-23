@@ -90,7 +90,7 @@ export const CLOSED_INCIDENTS_FIRST_BATCH: readonly SeedIncident[] = [
     hasCoordinates: true,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.admin,
+      assigneeEmail: DEMO_EMAILS.concierge,
       resolutionHours: 20,
       resolution:
         'Se revisó la grabación disponible y se reparó la cámara del sector norte. Se entregó copia del registro a la residente para la denuncia.',

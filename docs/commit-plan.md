@@ -46,7 +46,7 @@ verificación manual propia.
 | 29 | Entrega final | `feat(api): add assignee suggestion endpoint` | [x] |
 | 30 | Entrega final | `feat(web): suggest category while reporting` | [x] |
 | 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [x] |
-| 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [ ] |
+| 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [x] |
 | 33 | Entrega final | `feat(api): add database file storage adapter` | [ ] |
 | 34 | Entrega final | `feat(root): prepare production deployment` | [ ] |
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [ ] |

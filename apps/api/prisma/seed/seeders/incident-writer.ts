@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import type { Prisma, PrismaClient } from '@prisma/client';
 
+import { suggestCategory } from '@incidents/shared';
+
 import { getYearInTimeZone } from '@/common/time/date-math';
 import { formatFolio } from '@/modules/incidents/domain/folio';
 import { calculateDueAt } from '@/modules/incidents/domain/sla';
@@ -34,6 +36,10 @@ async function nextFolio(
   return formatFolio(context.condominiumCode, year, sequence);
 }
 
+function findAssigneeId(timeline: IncidentTimeline, context: WriterContext): string | null {
+  return timeline.assigneeEmail === null ? null : context.findUser(timeline.assigneeEmail).id;
+}
+
 function buildIncidentData(
   plan: IncidentPlan,
   ids: { readonly incidentId: string; readonly folio: string },
@@ -58,8 +64,8 @@ function buildIncidentData(
     closedAt: timeline.closedAt,
     status: timeline.finalStatus,
     reporterId: context.findUser(seed.reporterEmail).id,
-    assigneeId:
-      timeline.assigneeEmail === null ? null : context.findUser(timeline.assigneeEmail).id,
+    assigneeId: findAssigneeId(timeline, context),
+    suggestedCategoryCode: suggestCategory(seed)?.categoryCode ?? null,
   };
 }
 

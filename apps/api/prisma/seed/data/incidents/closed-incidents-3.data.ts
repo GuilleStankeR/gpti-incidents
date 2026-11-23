@@ -14,7 +14,7 @@ export const CLOSED_INCIDENTS_THIRD_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.secondConcierge,
+      assigneeEmail: DEMO_EMAILS.concierge,
       resolutionHours: 10,
       resolution:
         'Se reemplazó el brazo hidráulico de la puerta y se verificó el cierre del electroimán.',
@@ -33,7 +33,7 @@ export const CLOSED_INCIDENTS_THIRD_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.admin,
+      assigneeEmail: DEMO_EMAILS.secondConcierge,
       resolutionHours: 55,
       resolution:
         'El electricista reemplazó el diferencial del circuito de fuerza. Hubo que esperar la llegada del repuesto.',
@@ -52,7 +52,7 @@ export const CLOSED_INCIDENTS_THIRD_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.concierge,
+      assigneeEmail: DEMO_EMAILS.secondConcierge,
       resolutionHours: 36,
       resolution: 'Se pegó y fijó la alfombra con un perfil metálico en la zona de tránsito.',
       photosBeforeClosure: 0,
@@ -70,7 +70,7 @@ export const CLOSED_INCIDENTS_THIRD_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.secondConcierge,
+      assigneeEmail: DEMO_EMAILS.concierge,
       resolutionHours: 22,
       resolution:
         'Se limpió el sumidero y se revisó la pendiente del piso. El sumidero se agregó a la mantención mensual.',

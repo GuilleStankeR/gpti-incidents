@@ -70,7 +70,7 @@ export const CLOSED_INCIDENTS_FOURTH_BATCH: readonly SeedIncident[] = [
     hasCoordinates: false,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.admin,
+      assigneeEmail: DEMO_EMAILS.secondConcierge,
       resolutionHours: 30,
       resolution: 'El técnico detectó un condensador defectuoso y lo reemplazó. Equipo operativo.',
       photosBeforeClosure: 0,
@@ -88,7 +88,7 @@ export const CLOSED_INCIDENTS_FOURTH_BATCH: readonly SeedIncident[] = [
     hasCoordinates: true,
     outcome: {
       kind: 'closed',
-      assigneeEmail: DEMO_EMAILS.secondConcierge,
+      assigneeEmail: DEMO_EMAILS.concierge,
       resolutionHours: 28,
       resolution: 'Se selló la junta de dilatación del sector y se instaló una canaleta de desvío.',
       photosBeforeClosure: 0,
