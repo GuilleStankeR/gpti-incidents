@@ -4,6 +4,8 @@ import type {
   IncidentSummary,
   ListIncidentsQuery,
   PaginatedResponse,
+  PossibleDuplicatesQuery,
+  PossibleDuplicatesResponse,
   ReassignIncidentRequest,
   TransitionIncidentRequest,
 } from '@incidents/shared';
@@ -95,4 +97,12 @@ export async function getAssigneeSuggestion(
   return httpClient.get<AssigneeSuggestionResponse>(
     `${INCIDENTS_PATH}/${incidentId}/assignee-suggestion`,
   );
+}
+
+export async function getPossibleDuplicates(
+  query: PossibleDuplicatesQuery,
+): Promise<PossibleDuplicatesResponse> {
+  return httpClient.get<PossibleDuplicatesResponse>(`${INCIDENTS_PATH}/possible-duplicates`, {
+    ...query,
+  });
 }

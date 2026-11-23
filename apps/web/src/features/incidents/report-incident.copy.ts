@@ -73,6 +73,22 @@ export const reportIncidentCopy = {
       `La fecha del hecho no puede ser de hace más de ${String(days)} días.`,
     reviewFields: 'Revisa los campos marcados antes de continuar.',
   },
+  duplicates: {
+    title: 'Posible incidente duplicado',
+    visibleIntro: (hours: number): string =>
+      `Ya hay incidentes abiertos de esta categoría en esta ubicación registrados en las últimas ${String(hours)} horas:`,
+    hidden: (count: number, hours: number): string =>
+      count === 1
+        ? `Ya existe otro reporte abierto de esta categoría en esta ubicación registrado en las últimas ${String(hours)} horas.`
+        : `Ya existen ${String(count)} reportes abiertos de esta categoría en esta ubicación registrados en las últimas ${String(hours)} horas.`,
+    reportedAt: (date: string): string => `Registrado el ${date}`,
+    open: 'Ver incidente',
+    openInNewTab: (folio: string): string => `Ver incidente ${folio} en una pestaña nueva`,
+    addPhotosHint:
+      'Si es el mismo hecho, abre el incidente existente para agregar tus fotografías.',
+    canContinue:
+      'El aviso es informativo: si se trata de otro hecho, puedes registrarlo igualmente.',
+  },
   submit: 'Reportar incidente',
   cancel: 'Cancelar',
   submitErrorTitle: 'No pudimos registrar el incidente',

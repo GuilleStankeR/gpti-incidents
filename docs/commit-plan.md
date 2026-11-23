@@ -54,7 +54,7 @@ verificación manual propia.
 | 37 | Entrega final | `feat(shared): expand category keyword catalog` | [x] |
 | 38 | Solicitudes de cambio | `docs: plan change requests 1 and 2` | [x] |
 | 39 | Solicitudes de cambio | `feat(api): add possible duplicates endpoint` | [x] |
-| 40 | Solicitudes de cambio | `feat(web): warn about possible duplicates while reporting` | [ ] |
+| 40 | Solicitudes de cambio | `feat(web): warn about possible duplicates while reporting` | [x] |
 | 41 | Solicitudes de cambio | `feat(web): generate report qr codes per condominium and location` | [ ] |
 | 42 | Solicitudes de cambio | `docs: document change requests` | [ ] |
 

@@ -1,10 +1,12 @@
-import type { ListIncidentsQuery } from '@incidents/shared';
+import type { ListIncidentsQuery, PossibleDuplicatesQuery } from '@incidents/shared';
 
 export const incidentsKeys = {
   all: ['incidents'] as const,
   lists: () => [...incidentsKeys.all, 'list'] as const,
   list: (query: ListIncidentsQuery) => [...incidentsKeys.lists(), query] as const,
   detail: (incidentId: string) => [...incidentsKeys.all, 'detail', incidentId] as const,
+  possibleDuplicates: (query: PossibleDuplicatesQuery) =>
+    [...incidentsKeys.all, 'possible-duplicates', query] as const,
   assigneeSuggestion: (incidentId: string) =>
     [...incidentsKeys.all, 'assignee-suggestion', incidentId] as const,
 };
