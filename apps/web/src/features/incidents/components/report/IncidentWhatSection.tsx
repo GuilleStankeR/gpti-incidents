@@ -9,6 +9,7 @@ import { FormSection } from '@/shared/ui/FormSection';
 import { TextAreaField } from '@/shared/ui/TextAreaField';
 
 import { CategorySelect } from './CategorySelect';
+import { CategorySuggestionHint } from './CategorySuggestionHint';
 
 interface IncidentWhatSectionProps {
   readonly form: ReportIncidentFormState;
@@ -20,14 +21,6 @@ export function IncidentWhatSection({ form, categories }: IncidentWhatSectionPro
 
   return (
     <FormSection step={1} title={sections.what.title} description={sections.what.description}>
-      <CategorySelect
-        categories={categories}
-        value={form.values.categoryCode}
-        error={form.errors.categoryCode}
-        onChange={(categoryCode) => {
-          form.setValue('categoryCode', categoryCode);
-        }}
-      />
       <TextAreaField
         label={fields.description}
         placeholder={fields.descriptionPlaceholder}
@@ -40,6 +33,15 @@ export function IncidentWhatSection({ form, categories }: IncidentWhatSectionPro
           form.setValue('description', event.target.value);
         }}
       />
+      <div className="flex flex-col gap-2">
+        <CategorySelect
+          categories={categories}
+          value={form.values.categoryCode}
+          error={form.errors.categoryCode}
+          onChange={form.category.choose}
+        />
+        <CategorySuggestionHint category={form.category} categories={categories} />
+      </div>
     </FormSection>
   );
 }

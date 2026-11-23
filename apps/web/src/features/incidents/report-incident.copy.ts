@@ -6,7 +6,7 @@ export const reportIncidentCopy = {
   sections: {
     what: {
       title: '¿Qué ocurrió?',
-      description: 'Tipo de incidente y descripción de lo ocurrido.',
+      description: 'Descripción de lo ocurrido y tipo de incidente.',
     },
     whereWhen: {
       title: '¿Dónde y cuándo?',
@@ -21,6 +21,15 @@ export const reportIncidentCopy = {
     category: 'Categoría',
     categoryPlaceholder: 'Selecciona una categoría',
     slaHint: (hours: number): string => `Plazo de atención comprometido: ${String(hours)} horas.`,
+    suggestion: {
+      idle: 'Describe lo ocurrido y te sugeriremos una categoría automáticamente.',
+      applied: (terms: string): string => `Sugerida automáticamente por ${terms}.`,
+      probable: (terms: string): string => `Categoría probable según ${terms}. Revísala.`,
+      overridden: (categoryName: string): string =>
+        `Elegiste otra categoría. La sugerencia era «${categoryName}».`,
+      apply: 'Usar sugerencia',
+      quotedTerm: (term: string): string => `«${term}»`,
+    },
     description: 'Descripción',
     descriptionPlaceholder: 'Describe qué ocurrió, dónde exactamente y qué tan grave es.',
     descriptionHint: (minimum: number): string => `Mínimo ${String(minimum)} caracteres.`,

@@ -14,6 +14,8 @@ const decimalFormatter = new Intl.NumberFormat(DISPLAY_LOCALE, {
 
 const integerFormatter = new Intl.NumberFormat(DISPLAY_LOCALE);
 
+const listFormatter = new Intl.ListFormat(DISPLAY_LOCALE, { type: 'conjunction' });
+
 const dateFormatter = new Intl.DateTimeFormat(DISPLAY_LOCALE, {
   day: '2-digit',
   month: '2-digit',
@@ -43,4 +45,8 @@ export function formatFileSize(bytes: number): string {
   }
 
   return commonCopy.fileSize(formatDecimal(bytes / BYTES_PER_KILOBYTE), 'KB');
+}
+
+export function formatList(items: readonly string[]): string {
+  return listFormatter.format(items);
 }

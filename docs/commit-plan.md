@@ -44,7 +44,7 @@ verificación manual propia.
 | 27 | Entrega final | `feat(shared): add keyword-based category classifier` | [x] |
 | 28 | Entrega final | `feat(api): store category suggestions and report their accuracy` | [x] |
 | 29 | Entrega final | `feat(api): add assignee suggestion endpoint` | [x] |
-| 30 | Entrega final | `feat(web): suggest category while reporting` | [ ] |
+| 30 | Entrega final | `feat(web): suggest category while reporting` | [x] |
 | 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [ ] |
 | 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [ ] |
 | 33 | Entrega final | `feat(api): add database file storage adapter` | [ ] |
