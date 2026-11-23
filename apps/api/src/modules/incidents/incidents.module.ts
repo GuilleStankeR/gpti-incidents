@@ -17,10 +17,13 @@ import { IncidentWriteRepository } from './incident-write.repository';
 import { IncidentsController } from './incidents.controller';
 import { IncidentsRepository } from './incidents.repository';
 import { IncidentsService } from './incidents.service';
+import { PossibleDuplicatesController } from './possible-duplicates.controller';
+import { PossibleDuplicatesRepository } from './possible-duplicates.repository';
+import { PossibleDuplicatesService } from './possible-duplicates.service';
 
 @Module({
   imports: [CatalogsModule, EvidenceModule, GeocodingModule, UsersModule],
-  controllers: [IncidentsController, AssigneeSuggestionController],
+  controllers: [PossibleDuplicatesController, IncidentsController, AssigneeSuggestionController],
   providers: [
     IncidentsRepository,
     IncidentWriteRepository,
@@ -32,6 +35,8 @@ import { IncidentsService } from './incidents.service';
     IncidentGeocodingService,
     AssigneeSuggestionRepository,
     AssigneeSuggestionService,
+    PossibleDuplicatesRepository,
+    PossibleDuplicatesService,
   ],
 })
 export class IncidentsModule {}

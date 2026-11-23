@@ -13,6 +13,8 @@ export const DEFAULT_METRICS_PERIOD_DAYS = 90;
 
 export const ASSIGNEE_EXPERIENCE_WINDOW_DAYS = 90;
 
+export const DUPLICATE_WINDOW_HOURS = 48;
+
 export const ACCEPTED_PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
 export type PhotoMimeType = (typeof ACCEPTED_PHOTO_MIME_TYPES)[number];

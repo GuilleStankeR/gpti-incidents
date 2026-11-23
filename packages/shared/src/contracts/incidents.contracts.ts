@@ -72,3 +72,20 @@ export interface AssigneeSuggestion {
 export interface AssigneeSuggestionResponse {
   readonly suggestion: AssigneeSuggestion | null;
 }
+
+export interface PossibleDuplicatesQuery {
+  readonly category: string;
+  readonly location: string;
+}
+
+export interface PossibleDuplicate {
+  readonly id: string;
+  readonly folio: string;
+  readonly status: IncidentStatus;
+  readonly reportedAt: string;
+}
+
+export interface PossibleDuplicatesResponse {
+  readonly duplicates: readonly PossibleDuplicate[];
+  readonly hiddenCount: number;
+}
