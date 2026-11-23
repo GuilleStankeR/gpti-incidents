@@ -4,7 +4,7 @@ import {
   CLASSIFIABLE_CATEGORY_CODES,
   LOCATION_HINTS,
 } from './category-keywords.catalog.js';
-import type { ClassifiableCategoryCode } from './category-keywords.catalog.js';
+import type { ClassifiableCategoryCode } from './category-keywords.types.js';
 import { extractWords, normalizeText } from './text-normalization.js';
 import type { TextWord } from './text-normalization.js';
 

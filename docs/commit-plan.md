@@ -51,11 +51,12 @@ verificación manual propia.
 | 34 | Entrega final | `feat(root): prepare production deployment` | [x] |
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [x] |
 | 36 | Entrega final | `docs: add deployment guide and final checklist` | [x] |
+| 37 | Entrega final | `feat(shared): expand category keyword catalog` | [x] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
 de datos y la web arrancando, sin funcionalidades de negocio.
 
-La fase **Entrega final** (26 a 36) agrega la clasificación automática y el despliegue en
+La fase **Entrega final** (26 a 37) agrega la clasificación automática y el despliegue en
 producción descritos en `CLAUDE.md` §2.1.
 
 ---
@@ -1127,3 +1128,19 @@ refrescar los datos de demostración); `README.md` (clasificación automática, 
 variables nuevas); `docs/acceptance-checklist.md` (criterios de la entrega final).
 
 **Verificación:** revisión de los documentos y del guion de demostración completo en local.
+
+---
+
+## 37 · `feat(shared): expand category keyword catalog`
+
+**Objetivo:** triplicar las formas de describir cada categoría sin perder precisión (F1).
+
+**Archivos (`packages/shared/src/classification/`):** un catálogo por categoría en `keywords/`
+(de 125 a 379 raíces y frases, con regionalismos chilenos y variantes verbales),
+`category-keywords.types.ts` con los tipos compartidos y `category-keywords.catalog.ts` que los
+reúne junto con las pistas por ubicación. Los nombres de lugares ("sala multiuso", "vidrio") pasan
+a peso moderado para no ganarle a las palabras que describen el problema.
+
+**Verificación:** seed con 28 de 29 sugerencias correctas (antes 27 de 28); set de 59 frases
+realistas con 59 aciertos y ninguna sugerencia equivocada; las frases de ejemplo de la demo
+mantienen su resultado.

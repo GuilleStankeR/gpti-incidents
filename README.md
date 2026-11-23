@@ -149,13 +149,16 @@ en el expediente PDF, de modo que cualquiera puede verificar que la fotografía 
 El tipo de archivo se valida por su contenido real, no por la extensión.
 
 **Clasificación por palabras clave, no por un modelo de lenguaje.** La categoría se sugiere con
-un catálogo de raíces y frases en español con pesos (por ejemplo, `filtr`, `gote` y `humed` para
-filtraciones; "olor a quemado" para fallas eléctricas), más una pista por ubicación. Es
+un catálogo de unas 380 raíces y frases en español con pesos, incluidos regionalismos chilenos
+(por ejemplo, `filtr`, `gote`, "aniego" y "llave de paso" para filtraciones; "se fue la luz" y
+"olor a quemado" para fallas eléctricas; "portonazo" y "lanza" para seguridad), más una pista por
+ubicación. Los nombres de lugares pesan menos que las palabras que describen el problema. Es
 instantáneo, gratuito, no envía datos a terceros y siempre explica su decisión: la interfaz
 muestra los términos detectados. Si no hay señales suficientes o hay empate, no sugiere nada. La
 función vive en `@incidents/shared`: la web la ejecuta mientras se escribe y la API la recalcula
-al guardar, sin aceptar la del cliente. Con las descripciones del seed sugiere en 28 de 32 casos y
-acierta en 27.
+al guardar, sin aceptar la del cliente. Con las descripciones del seed sugiere en 29 de 32 casos y
+acierta en 28; con un set adicional de 59 frases realistas acierta en todas y no sugiere ninguna
+categoría equivocada.
 
 **Responsable sugerido por historial y carga.** Entre los conserjes y administradores del
 condominio gana quien más casos de la categoría cerró en los últimos 90 días, descontando los
