@@ -7,7 +7,8 @@ inalterable de sus cambios de estado. El resultado es un expediente digital traz
 en PDF, que sirve como respaldo probatorio ante aseguradoras, empresas de mantención o la
 inmobiliaria. Al reportar, el sistema sugiere la categoría a partir de la descripción y, al
 asignar, sugiere el responsable según su experiencia y su carga; ambas sugerencias se pueden
-cambiar a mano.
+cambiar a mano. El administrador puede imprimir códigos QR que abren el formulario de reporte con
+la ubicación ya elegida, y el formulario avisa cuando el incidente podría estar repetido.
 
 La versión de entrega final corre también en producción (API en Render, web en Vercel): ver
 [`docs/deployment.md`](docs/deployment.md).
@@ -169,6 +170,22 @@ motivo y la elección manual siempre prevalece.
 disco local (desarrollo) y tabla `stored_file` (producción), elegidos con `STORAGE_DRIVER`. El
 disco de Render se borra en cada reinicio; guardar los archivos en PostgreSQL evita perder
 evidencia sin sumar otro servicio. Un trigger impide modificar el contenido guardado.
+
+### Solicitudes de cambio implementadas
+
+**Código QR por condominio y ubicación (solicitud 1).** En "Códigos QR" (solo administrador) se
+elige una ubicación opcional y se obtiene un afiche con el QR, descargable en PNG o imprimible
+directamente. El QR apunta a `/incidents/new?condominium=C29&location=…`: el formulario
+preselecciona la ubicación si es del catálogo y avisa si el código pertenece a otro condominio.
+Si quien escanea no tiene sesión, pasa por el login y vuelve al formulario con los mismos
+parámetros. El QR se genera en el navegador con `qrcode-generator`, sin dependencias; no cambia
+el modelo de datos.
+
+**Aviso de posible duplicado (solicitud 2).** Al elegir categoría y ubicación, el formulario
+consulta `GET /api/incidents/possible-duplicates` y avisa si hay incidentes abiertos con la misma
+categoría y ubicación registrados en las últimas 48 horas, con folio, estado, fecha y un enlace
+que se abre en otra pestaña para no perder lo escrito. El aviso no bloquea el registro. Un
+residente solo ve el detalle de sus propios incidentes; del resto recibe únicamente la cantidad.
 
 Otras decisiones relevantes:
 

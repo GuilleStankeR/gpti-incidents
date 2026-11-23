@@ -64,6 +64,30 @@ Criterios de las capacidades F1 a F6 de `CLAUDE.md` §2.1, verificados sobre el 
   filtración cerrados y carga actual).
 - **Paso 10:** el panel suma el indicador de sugerencias de categoría aceptadas.
 
+## Solicitudes de cambio
+
+Solicitudes 1 y 2 del Grupo 9 (F7 y F8 de `CLAUDE.md` §2.1).
+
+| ID | Criterio | Resultado | Cómo se verificó | Commit |
+|---|---|---|---|---|
+| CS-01 | El administrador genera un QR descargable con el enlace a "Nuevo incidente" y el condominio preseleccionado | ✅ Cumple | Chrome headless: la descarga `qr-reporte-c29-ascensor-torre-a.png` (1200 × 1650) se decodifica con `jsQR` a `/incidents/new?condominium=C29&location=Ascensor+Torre+A` | 41 |
+| CS-02 | El QR puede llevar la ubicación preseleccionada | ✅ Cumple | Al abrir el enlace, el formulario trae "Ascensor Torre A" elegida y un aviso que lo explica | 41 |
+| CS-03 | El QR se puede imprimir | ✅ Cumple | Con medios de impresión solo se ve el afiche, centrado y sobre fondo blanco | 41 |
+| CS-04 | Sin sesión, el enlace pasa por el login y vuelve al formulario | ✅ Cumple | Contexto sin sesión → `/login` → tras entrar como residente, `/incidents/new` con los mismos parámetros | 41 |
+| CS-05 | Solo el administrador genera códigos QR | ✅ Cumple | El conserje no ve la opción y `/qr-codes` lo devuelve a la bandeja | 41 |
+| CS-06 | Con categoría y ubicación elegidas, se avisa de incidentes abiertos iguales de las últimas 48 horas con folio, estado y fecha | ✅ Cumple | Conserje con filtración en `Estacionamiento -1`: aviso con `C29-2026-0029`, "En ejecución", fecha y enlace (44 px) que abre otra pestaña; un incidente de hace 71 horas no aparece | 39, 40 |
+| CS-07 | El aviso no bloquea el registro | ✅ Cumple | El botón de envío sigue habilitado y el aviso desaparece al cambiar a una ubicación sin coincidencias | 40 |
+| CS-08 | Un residente solo ve el detalle de sus propios incidentes | ✅ Cumple | La dueña de `C29-2026-0026` ve su folio; otro residente recibe solo `hiddenCount: 1` y el aviso genérico | 39, 40 |
+
+### Momentos para la demostración
+
+- **QR:** como administrador, abrir "Códigos QR", elegir "Ascensor Torre A", descargar el PNG y
+  escanearlo con el celular (o abrir el enlace en una ventana privada para mostrar el paso por el
+  login).
+- **Duplicado:** como conserje, reportar una filtración en `Estacionamiento -1`, o una falla de
+  ascensor en `Ascensor Torre A`, y mostrar el aviso con el folio existente. Como residente, la
+  misma combinación muestra solo el aviso genérico.
+
 ## Cómo reproducir las verificaciones de base de datos
 
 ```bash
