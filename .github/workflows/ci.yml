@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Lint, types, build and audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w @incidents/shared
+      - run: npm run db:generate -w @incidents/api
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run format:check
+      - run: npm audit

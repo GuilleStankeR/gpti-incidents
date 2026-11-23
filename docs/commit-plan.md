@@ -49,7 +49,7 @@ verificación manual propia.
 | 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [x] |
 | 33 | Entrega final | `feat(api): add database file storage adapter` | [x] |
 | 34 | Entrega final | `feat(root): prepare production deployment` | [x] |
-| 35 | Entrega final | `chore(root): add continuous integration workflow` | [ ] |
+| 35 | Entrega final | `chore(root): add continuous integration workflow` | [x] |
 | 36 | Entrega final | `docs: add deployment guide and final checklist` | [ ] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
