@@ -34,6 +34,36 @@ criterio.
 | CA-22 | `npm run probar` pasa en verde | ⛔ No aplica | Por decisión del equipo el proyecto no incluye pruebas automatizadas (`CLAUDE.md` §2) | — |
 | CA-23 | `npm run build` compila sin errores ni advertencias | ✅ Cumple | Build completo de `shared`, API y web sin errores ni advertencias | 25 |
 
+## Entrega final
+
+Criterios de las capacidades F1 a F6 de `CLAUDE.md` §2.1, verificados sobre el seed actual.
+
+| ID | Criterio | Resultado | Cómo se verificó | Commit |
+|---|---|---|---|---|
+| CF-01 | Al escribir la descripción se sugiere la categoría y se muestran los términos detectados | ✅ Cumple | Chrome headless a 390 px: una filtración selecciona "Filtración o daño por agua" con «filtra», «agua», «mancha» y «humedad» | 27, 30 |
+| CF-02 | La elección manual prevalece y "Usar sugerencia" la restituye | ✅ Cumple | Elegir otra categoría la mantiene aunque se siga escribiendo; el botón (44 px) vuelve a la sugerida | 30 |
+| CF-03 | El servidor recalcula y guarda la sugerencia; ignora la que envía el cliente | ✅ Cumple | `POST /api/incidents` con `suggestedCategoryCode=SECURITY` guarda `WATER_LEAK`, la calculada por el servidor | 28 |
+| CF-04 | Al asignar o reasignar se sugiere un responsable con su motivo y la elección manual prevalece | ✅ Cumple | Modal de asignación con Luis Meneses preseleccionado y el motivo; al reasignar se excluye al actual; el conserje recibe `FORBIDDEN_ROLE` y un incidente inexistente, 404 | 29, 31 |
+| CF-05 | El detalle indica si la categoría fue la sugerida | ✅ Cumple | Etiqueta "Sugerida automáticamente" o "La sugerencia automática era «…»" | 31 |
+| CF-06 | El panel muestra el porcentaje de sugerencias de categoría aceptadas | ✅ Cumple | 96,4 % con el seed (27 de 28 sugerencias) | 28, 31, 32 |
+| CF-07 | Con `STORAGE_DRIVER=database` la evidencia vive en la base y no se puede modificar | ✅ Cumple | Reporte con fotografía, visor y PDF sin archivos en disco; el hash descargado coincide; `UPDATE stored_file` falla | 33 |
+| CF-08 | En una base vacía, el arranque de producción migra, carga el seed y responde el chequeo de salud; un segundo arranque no duplica datos | ✅ Cumple | `start:production` contra una base nueva: 4 migraciones, 32 incidentes, 36 archivos, `{"status":"ok"}`; el segundo arranque omite el seed | 34 |
+| CF-09 | CORS solo para el origen configurado y cabeceras de seguridad | ✅ Cumple | El origen permitido recibe `Access-Control-Allow-Origin`; otro origen no; respuestas con `Strict-Transport-Security`, `X-Content-Type-Options` y `Cross-Origin-Resource-Policy` | 34 |
+| CF-10 | Límite de intentos de inicio de sesión por cliente | ✅ Cumple | El undécimo intento en un minuto responde `TOO_MANY_REQUESTS` (429); otro cliente entra sin problemas | 34 |
+| CF-11 | La web compilada opera contra la API desde otro origen, como en Vercel | ✅ Cumple | Build con `VITE_API_URL` servido en otro puerto: inicio de sesión, reporte con fotografía, evidencia visible y detalle sin errores | 34 |
+| CF-12 | La integración continua pasa en verde | ✅ Cumple | GitHub Actions con Node 22 y el npm que trae: `npm ci`, lint, tipos, build, formato y `npm audit` en verde | 35 |
+| CF-13 | `npm audit` sin vulnerabilidades | ✅ Cumple | 0 vulnerabilidades tras actualizar Nest 11.2.11, `@nestjs/cli` 12, `typescript-eslint` 8.73 y `eslint-plugin-import-x` 4.18 | 34 |
+| CF-14 | Aplicación desplegada en Render y Vercel | ⏳ Pendiente | La ejecuta el equipo con sus cuentas siguiendo `docs/deployment.md` | 36 |
+
+### Momentos nuevos para el guion de demostración
+
+- **Paso 2:** al escribir la descripción de la filtración, la categoría se completa sola y se ven
+  los términos detectados. Elegir otra categoría y volver con "Usar sugerencia" muestra que la
+  decisión final es del usuario.
+- **Paso 6:** el modal "Asignar responsable" abre con Luis Meneses sugerido y el motivo (casos de
+  filtración cerrados y carga actual).
+- **Paso 10:** el panel suma el indicador de sugerencias de categoría aceptadas.
+
 ## Cómo reproducir las verificaciones de base de datos
 
 ```bash

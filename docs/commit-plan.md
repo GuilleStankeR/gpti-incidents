@@ -50,7 +50,7 @@ verificación manual propia.
 | 33 | Entrega final | `feat(api): add database file storage adapter` | [x] |
 | 34 | Entrega final | `feat(root): prepare production deployment` | [x] |
 | 35 | Entrega final | `chore(root): add continuous integration workflow` | [x] |
-| 36 | Entrega final | `docs: add deployment guide and final checklist` | [ ] |
+| 36 | Entrega final | `docs: add deployment guide and final checklist` | [x] |
 
 La fase **Base** (02 a 07) deja el monorepo, el tooling, el paquete compartido, la API, la base
 de datos y la web arrancando, sin funcionalidades de negocio.
@@ -1109,8 +1109,10 @@ desde un origen no permitido no recibe cabeceras CORS; `npm audit` en 0.
 
 **Objetivo:** lint, tipos, build y auditoría en cada push y pull request (F6).
 
-**Archivos:** `.github/workflows/ci.yml` (Node 22, `npm ci`, build de `shared`, `npm run lint`,
-`npm run typecheck`, `npm run build`, `npm audit`).
+**Archivos:** `.github/workflows/ci.yml` (Node 22, `npm ci`, build de `shared`, cliente de
+Prisma, `npm run lint`, `npm run typecheck`, `npm run build`, `npm run format:check`,
+`npm audit`). El job define `TIME_ZONE`, que el build de la web exige (corrección en un commit
+`fix(root)` posterior).
 
 **Verificación:** el workflow pasa en verde en GitHub.
 
