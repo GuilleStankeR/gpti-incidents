@@ -62,3 +62,13 @@ export interface ReassignIncidentRequest {
   readonly assigneeId: string;
   readonly note: string;
 }
+
+export interface AssigneeSuggestion {
+  readonly assignee: UserSummary;
+  readonly closedInCategory: number;
+  readonly openAssigned: number;
+}
+
+export interface AssigneeSuggestionResponse {
+  readonly suggestion: AssigneeSuggestion | null;
+}

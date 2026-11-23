@@ -5,6 +5,9 @@ import { EvidenceModule } from '@/modules/evidence/evidence.module';
 import { GeocodingModule } from '@/modules/geocoding/geocoding.module';
 import { UsersModule } from '@/modules/users/users.module';
 
+import { AssigneeSuggestionController } from './assignee-suggestion.controller';
+import { AssigneeSuggestionRepository } from './assignee-suggestion.repository';
+import { AssigneeSuggestionService } from './assignee-suggestion.service';
 import { IncidentEvidenceService } from './incident-evidence.service';
 import { IncidentGeocodingService } from './incident-geocoding.service';
 import { IncidentRegistrationService } from './incident-registration.service';
@@ -17,7 +20,7 @@ import { IncidentsService } from './incidents.service';
 
 @Module({
   imports: [CatalogsModule, EvidenceModule, GeocodingModule, UsersModule],
-  controllers: [IncidentsController],
+  controllers: [IncidentsController, AssigneeSuggestionController],
   providers: [
     IncidentsRepository,
     IncidentWriteRepository,
@@ -27,6 +30,8 @@ import { IncidentsService } from './incidents.service';
     IncidentWorkflowService,
     IncidentEvidenceService,
     IncidentGeocodingService,
+    AssigneeSuggestionRepository,
+    AssigneeSuggestionService,
   ],
 })
 export class IncidentsModule {}

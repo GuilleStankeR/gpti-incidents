@@ -43,7 +43,7 @@ verificación manual propia.
 | 26 | Entrega final | `docs: plan final delivery scope` | [x] |
 | 27 | Entrega final | `feat(shared): add keyword-based category classifier` | [x] |
 | 28 | Entrega final | `feat(api): store category suggestions and report their accuracy` | [x] |
-| 29 | Entrega final | `feat(api): add assignee suggestion endpoint` | [ ] |
+| 29 | Entrega final | `feat(api): add assignee suggestion endpoint` | [x] |
 | 30 | Entrega final | `feat(web): suggest category while reporting` | [ ] |
 | 31 | Entrega final | `feat(web): suggest assignee and show suggestion accuracy` | [ ] |
 | 32 | Entrega final | `feat(db): seed assignee specialties and category suggestions` | [ ] |
