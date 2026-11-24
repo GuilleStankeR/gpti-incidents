@@ -57,7 +57,8 @@ class QrPosterPainter {
     const totalModules = matrix.length + POSTER.quietZoneModules * POSTER.quietZoneSides;
     const moduleSize = Math.floor(POSTER.qrSize / totalModules);
     const quietZone = POSTER.quietZoneModules * moduleSize;
-    const offset = (POSTER.qrSize - moduleSize * totalModules) * HALF + quietZone;
+    const centeringMargin = Math.floor((POSTER.qrSize - moduleSize * totalModules) * HALF);
+    const offset = centeringMargin + quietZone;
     const left = (POSTER.width - POSTER.qrSize) * HALF + offset;
     const top = POSTER.qrTop + offset;
 

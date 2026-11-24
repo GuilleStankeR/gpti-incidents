@@ -1215,6 +1215,9 @@ para no perder el formulario), y el aviso genérico cuando hay reportes no visib
 - `features/auth`: el login vuelve a la ruta que pidió el usuario (con sus parámetros) en vez de
   ir siempre a la bandeja.
 - `qrcode-generator` como dependencia de la web.
+- El afiche PNG dibuja los módulos en píxeles enteros: con el enlace de producción, más largo, el
+  centrado caía en medio píxel y el suavizado dejaba líneas que impedían leer el código
+  (corrección en un commit `fix(web)` posterior).
 
 **Verificación:** con Chrome headless, el administrador genera el QR de `Ascensor Torre A`, lo
 descarga y el contenido del QR apunta al formulario; sin sesión, el enlace lleva al login y,
